@@ -409,3 +409,17 @@
  .performance-dialog .performance-timing .performance-duration-wrap select{min-width:0}
  .performance-dialog .performance-wake-button{justify-content:center}
 }
+
+
+/* v0.4 line-timed live performance, without a larger mobile bar */
+.performance-mode-selector{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px auto;max-width:490px;color:#d7e3d4;font-size:12px}
+.performance-mode-selector select{background:#355541;border:1px solid #72927a;border-radius:8px;min-width:142px;min-height:42px;color:#f8f4e9;padding:8px 34px 8px 10px;font-size:12px}
+.performance-timed-description{color:#bfcebb;max-width:490px;font-size:11px;line-height:1.6;margin:0 auto 10px}
+.performance-dialog .performance-mode-selector[hidden],.performance-dialog .performance-timed-description[hidden],.performance-dialog #performance-continuous-duration[hidden]{display:none}
+.lyrics [data-start-ms]::before{content:none}
+/* Source timestamps are never rendered as text; only the line itself remains */
+@media(max-width:700px),(max-height:500px) and (max-width:950px){
+ .performance-dialog .performance-mode-selector{display:grid;grid-template-columns:1fr auto;max-width:none}
+ .performance-dialog .performance-timed-description{max-width:none}
+ .performance-dialog .performance-mode-selector select{min-height:42px}
+}

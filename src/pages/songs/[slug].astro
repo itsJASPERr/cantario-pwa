@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { ArrowLeft, ChevronDown, Minus, Moon, Plus, SlidersHorizontal, Sun, X } from '@lucide/astro';
 import { hasChordTokens } from '../../lib/rehype-chords.mjs';
+import { inspectSongTiming } from '../../lib/song-timing.mjs';
 export async function getStaticPaths() {
   const songs = await getCollection('songs');
   return songs.map(song => ({params:{slug:song.id},props:{song}}));
@@ -11,6 +12,8 @@ interface Props { song: CollectionEntry<'songs'> }
 const {song} = Astro.props;
 const {Content} = await render(song);
 const hasChords = hasChordTokens(song.body || '');
+const timing = inspectSongTiming(song.body || '',song.data.duration_seconds);
+const formatTime = (seconds: number) => String(Math.floor(seconds / 60)).padStart(2,'0') + ':' + String(Math.floor(seconds % 60)).padStart(2,'0');
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const cmsSongs = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main/collection/songs';
 const editSongUrl = cmsSongs + '/edit/' + encodeURIComponent('src/content/songs/' + song.id + '.md');
@@ -169,7 +172,8 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
 <script type="module" src={base + 'scripts/lists-ui.js'}></script>
 <script type="module" src={base + 'scripts/audio-offline.js'}></script>
 
-<dialog class="performance-dialog" id="performance-dialog" aria-labelledby="performance-heading" aria-modal="true">
+<dialog class="performance-dialog" id="performance-dialog" aria-labelledby="performance-heading" aria-modal="true"
+  data-duration-seconds={timing.durationSeconds ?? ''} data-timing-valid={timing.valid ? 'yes':'no'}>
   <div class="performance-shell">
     <header class="performance-header">
       <button type="button" class="performance-exit" id="performance-exit" aria-label="Salir del modo escenario">
@@ -217,7 +221,21 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
           <strong>Ajustes de escenario</strong>
           <button type="button" id="performance-settings-close" aria-label="Cerrar ajustes"><X size={20} aria-hidden="true" /></button>
         </div>
-      <div class="performance-timing">
+      <div class="performance-mode-selector" id="performance-mode-wrap" hidden={!timing.valid}>
+        <label for="performance-mode">Desplazamiento</label>
+        <span class="performance-duration-wrap">
+          <select id="performance-mode" aria-label="Modo de desplazamiento">
+            <option value="continuous">Continuo</option>
+            <option value="timed">Sincronizado</option>
+          </select>
+          <ChevronDown class="performance-duration-chevron" size={17} aria-hidden="true" />
+        </span>
+      </div>
+      <p id="performance-timed-description" class="performance-timed-description" hidden={!timing.valid}>
+        Sigue la referencia de <strong>{timing.durationSeconds ? formatTime(timing.durationSeconds) : ''}</strong>
+        y las marcas de inicio de cada línea. Ajustá −/+ si cambia el ritmo en vivo.
+      </p>
+      <div class="performance-timing" id="performance-continuous-duration">
         <label for="performance-duration">Duración</label>
         <span class="performance-duration-wrap">
         <select id="performance-duration" aria-label="Duración aproximada de desplazamiento">

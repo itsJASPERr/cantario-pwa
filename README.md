@@ -137,3 +137,24 @@ The normal desktop controls are unchanged. All existing localStorage settings ar
 The performance settings use Lucide's Astro SVG icons (`@lucide/astro`), including the duration dropdown chevron, close button, settings control, and wake-lock states. **Pantalla activa** means the Screen Wake Lock API successfully requested the screen to stay on during performance; **Pantalla normal** means the feature is off and normal device timeout rules apply. Unsupported, denied, and released states are displayed separately. This does not control brightness or guarantee that the OS will honor the request (low battery or backgrounding can release it).
 
 **Wake-lock control wording:** The performance settings label is now `Keep awake · ON`, `Keep awake · OFF`, or `Keep awake · Unavailable` (with an activation state). ON means the browser actually acquired a screen wake lock; enabling the preference does not guarantee the device grants it. The tooltip explains that this prevents screen locking during a performance when supported.
+
+
+## v0.4 — Line-timed live scrolling (GitHub Issues #1/#2)
+
+In Pages CMS **Canciones**, optionally fill in **Duración de referencia (segundos)**, e.g. `225` for 3:45. In **Letra → Source**, add LRC-style timestamps at the **beginning of a sung line**, before any chords:
+
+
+```text
+[00:18.00][Am]Un paso, una huella,
+[00:23.50]la [G]tierra me deja estar.
+[00:29.00]El [F]viento trae canciones,
+
+[01:12.00][C]Cuando la noche se acerca
+```
+
+
+Each timestamp represents the planned beginning of a lyric line in a **live performance**. Timestamps must increase strictly and be before the song duration; use at least two. Intermediate lines without timestamps are left between reference anchors. Timestamps and chord markers do not appear literally in the published reader. Stay in Pages CMS **Source** mode when saving to avoid unexpected Markdown normalization.
+
+In Modo Escenario, choose **Sincronizado** if the duration and timestamps are valid. The clock interpolates between line anchors, anticipating the following line by approximately two seconds. Existing **Continuo** mode is retained and used by songs with missing or invalid timing; manual swipe still pauses. The duration selector controls only continuous scrolling. In synchronized mode the song's reference duration is shown instead. Live −/+ changes timing speed without changing source timestamps.
+
+This is a fixed rehearsal reference, not automatic listening or microphone detection; an interactive tap-to-sync authoring tool and live resynchronization are separate future GitHub issues (#3 and #4).
