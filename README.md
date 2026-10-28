@@ -209,3 +209,7 @@ Both library and song reader display a cache-readiness status. "Lista para usar 
 
 ## Prominent four-beat brackets view (issue #10)
 Modo Escenario now has a dedicated beat-brackets row under the song title, displaying **[1] [2] [3] [4]** in stable, legible boxes with the current BPM. The active beat is highlighted in amber; beat one has a distinctive border. A second, reserved row displays INTRO, INTERLUDIO and 3–2–1 cues without covering or moving lyrics. The beat view freezes on Pause, shows no fake beat when ready/finished, and follows the four-beat pre-count when calibrated. The settings drawer includes **Pulso visual: sí/no**; turning it off saves the preference and retains the shorter cue row. This is a visual guide, not a claim of automatic time-signature or live downbeat detection.
+
+## Custom Pages CMS authoring components
+
+Prototype components for a self-hosted Pages CMS instance live in [`pagescms-custom-fields/`](pagescms-custom-fields/README.md): a line-by-line lyric timing editor with rehearsal capture, and a BPM tap field. These are **not active in the hosted Pages CMS**. The hosted `.pages.yml` retains compatible built-in fields; follow the integration README to install these in a self-hosted CMS application.
