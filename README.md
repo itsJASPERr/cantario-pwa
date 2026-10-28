@@ -158,3 +158,6 @@ Each timestamp represents the planned beginning of a lyric line in a **live perf
 In Modo Escenario, choose **Sincronizado** if the duration and timestamps are valid. The clock interpolates between line anchors, anticipating the following line by approximately two seconds. Existing **Continuo** mode is retained and used by songs with missing or invalid timing; manual swipe still pauses. The duration selector controls only continuous scrolling. In synchronized mode the song's reference duration is shown instead. Live −/+ changes timing speed without changing source timestamps.
 
 This is a fixed rehearsal reference, not automatic listening or microphone detection; an interactive tap-to-sync authoring tool and live resynchronization are separate future GitHub issues (#3 and #4).
+
+
+The synchronized reader subtly highlights the currently timed lyric line as the live clock passes each authored timestamp; this highlight is independent of the two-second read-ahead used for scrolling and never appears in Continuous mode.

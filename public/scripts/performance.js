@@ -84,6 +84,8 @@ import {
   let mode = 'continuous';
   let timedTrack = null;
   let songClock = 0;
+  let timedLines = [];
+  let activeLine = null;
   let manualPositionChanged = false;
 
   function isMobileControls() {
@@ -152,17 +154,38 @@ import {
     return String(Math.floor(n / 60)).padStart(2, '0') + ':' +
       String(n % 60).padStart(2, '0');
   }
+  function updateActiveTimedLine() {
+    if (mode !== 'timed' || !timedTrack) {
+      if (activeLine) activeLine.classList.remove('is-current');
+      activeLine = null;
+      return;
+    }
+    let now = null;
+    for (const cue of timedLines) {
+      if (cue.time <= songClock) now = cue.element;
+      else break;
+    }
+    if (now !== activeLine) {
+      if (activeLine) activeLine.classList.remove('is-current');
+      if (now) now.classList.add('is-current');
+      activeLine = now;
+    }
+  }
   function rebuildTimedTrack() {
-    if (!timingValid || !dialog.open) { timedTrack = null; return; }
+    if (!timingValid || !dialog.open) { timedTrack = null; timedLines=[]; return; }
     const total = physicalDistance();
     const viewport = scroll.clientHeight;
     const bounds = scroll.getBoundingClientRect();
     const markers = [...lyrics.querySelectorAll('.lyric-line[data-start-ms]')];
-    const cues = markers.map(element => ({
-      time:Number(element.dataset.startMs) / 1000,
+    timedLines = markers.map(element => ({
+      element, time:Number(element.dataset.startMs) / 1000
+    }));
+    const cues = timedLines.map(({element,time}) => ({
+      time,
       y:element.getBoundingClientRect().top - bounds.top + scroll.scrollTop - viewport*0.34
     }));
     timedTrack = makeTimedTrack(cues, canonicalDuration, total, 2);
+    updateActiveTimedLine();
     // Re-anchor to the same musical time after resizing, changing fonts
     // or switching chords; avoid a sudden jump on the next animation frame.
     if (mode === 'timed' && timedTrack && state !== 'ready' && !manualPositionChanged) {
@@ -186,6 +209,7 @@ import {
     mode = newMode;
     if (persist) save(KEY.mode,mode);
     syncModeDisplay();
+    updateActiveTimedLine();
     updateProgress();
   }
   function updateProgress() {
@@ -247,6 +271,7 @@ import {
       songClock = Math.min(timedTrack.duration, songClock + deltaSeconds * multiplier);
       virtualPosition = timedPositionAt(timedTrack, songClock);
       scroll.scrollTop = virtualPosition;
+      updateActiveTimedLine();
       updateProgress();
       if (songClock >= timedTrack.duration - 0.001) { finished(); return; }
     } else {
@@ -428,6 +453,8 @@ import {
     elapsedSeconds = 0;
     songClock = 0;
     manualPositionChanged = false;
+    if (activeLine) activeLine.classList.remove('is-current');
+    activeLine = null;
     countdownRemaining = 0;
     // Sync with Cantario's existing reader preference keys.
     fontSize = Math.min(32, Math.max(12, Number(read(KEY.size,20)) || 20));
@@ -441,6 +468,7 @@ import {
     rebuildTimedTrack();
     mode = timingValid && timedTrack && read(KEY.mode,'timed') !== 'continuous' ? 'timed' : 'continuous';
     syncModeDisplay();
+    updateActiveTimedLine();
     wakeEnabled = read(KEY.wake,'yes') !== 'no';
     setControlsHidden(false);
     setSettingsOpen(false);
@@ -471,6 +499,8 @@ import {
     cancelCountdown();
     void releaseWakeLock();
     state = 'ready';
+    if (activeLine) activeLine.classList.remove('is-current');
+    activeLine = null;
     if (previousFocus?.isConnected) previousFocus.focus();
   });
   play.addEventListener('click', onPlay);

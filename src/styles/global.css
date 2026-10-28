@@ -423,3 +423,11 @@
  .performance-dialog .performance-timed-description{max-width:none}
  .performance-dialog .performance-mode-selector select{min-height:42px}
 }
+
+
+/* Highlight the current *authored* lyric onset, not the anticipatory scroll cue. */
+.performance-dialog[data-scroll-mode="timed"] .lyric-line.is-current{
+  background:rgba(147,190,143,.15);
+  border-radius:5px;
+  box-shadow:0 0 0 5px rgba(147,190,143,.15);
+}
