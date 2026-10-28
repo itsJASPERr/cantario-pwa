@@ -135,3 +135,5 @@ The normal desktop controls are unchanged. All existing localStorage settings ar
 ## Performance icons and screen wake lock
 
 The performance settings use Lucide's Astro SVG icons (`@lucide/astro`), including the duration dropdown chevron, close button, settings control, and wake-lock states. **Pantalla activa** means the Screen Wake Lock API successfully requested the screen to stay on during performance; **Pantalla normal** means the feature is off and normal device timeout rules apply. Unsupported, denied, and released states are displayed separately. This does not control brightness or guarantee that the OS will honor the request (low battery or backgrounding can release it).
+
+**Wake-lock control wording:** The performance settings label is now `Keep awake · ON`, `Keep awake · OFF`, or `Keep awake · Unavailable` (with an activation state). ON means the browser actually acquired a screen wake lock; enabling the preference does not guarantee the device grants it. The tooltip explains that this prevents screen locking during a performance when supported.

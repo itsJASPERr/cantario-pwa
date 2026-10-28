@@ -249,10 +249,10 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         </div>
         <button type="button" id="performance-chords" aria-pressed="true" disabled={!hasChords} hidden={!hasChords}>♫ Acordes: sí</button>
         <button type="button" id="performance-countdown" aria-pressed="true">◷ Inicio: 3 s</button>
-        <button type="button" id="performance-wake" class="performance-wake-button" aria-pressed="true" aria-label="Mantener pantalla encendida" title="Evita que el dispositivo se bloquee mientras está abierto Modo Escenario, cuando el navegador lo permite">
+        <button type="button" id="performance-wake" class="performance-wake-button" aria-pressed="true" aria-label="Keep awake: prevent screen locking during performance" title="Keep awake: prevents the screen from locking during a performance when supported">
           <Sun class="wake-icon-on" size={16} aria-hidden="true" />
           <Moon class="wake-icon-off" size={16} aria-hidden="true" />
-          <span id="performance-wake-label">Pantalla: verificando…</span>
+          <span id="performance-wake-label">Keep awake · …</span>
         </button>
       </div>
       </div>

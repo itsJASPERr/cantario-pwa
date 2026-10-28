@@ -288,13 +288,18 @@ import {
   }
   function updateWakeLabel() {
     wake.setAttribute('aria-pressed', String(wakeEnabled));
-    const label = !wakeEnabled ? 'Pantalla normal'
-      : wakeLock && !wakeLock.released ? 'Pantalla activa'
-      : wakeMessage || 'Pantalla no disponible';
+    // Show the actual status, not merely the user's preference:
+    // the OS can deny or release the wake lock even when enabled.
+    const label = !wakeEnabled ? 'Keep awake · OFF'
+      : wakeLock && !wakeLock.released ? 'Keep awake · ON'
+      : wakeMessage === 'Activando…' ? 'Keep awake · …'
+      : 'Keep awake · Unavailable';
     wakeLabel.textContent = label;
-    wake.setAttribute('aria-label', (wakeEnabled ? 'Desactivar' : 'Activar') +
-      ' mantener pantalla encendida. Estado: ' + label);
-    wake.title = 'Evita que la pantalla se apague durante la actuación, si el dispositivo lo permite. Estado: ' + label;
+    wake.setAttribute('aria-label',
+      (wakeEnabled ? 'Disable' : 'Enable') +
+      ' Keep awake. Current status: ' + label +
+      '. Prevents the screen from locking during performance when supported.');
+    wake.title = 'Keep awake: prevents the screen from locking during a performance when supported. ' + label;
   }
   async function acquireWakeLock() {
     if (!wakeEnabled || !dialog.open || document.hidden) return;
