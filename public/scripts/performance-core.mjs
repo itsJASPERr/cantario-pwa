@@ -82,3 +82,78 @@ export function timedClockAtPosition(track, scrollPosition) {
   }
   return track.duration;
 }
+
+
+/**
+ * Visual live start cues. Timings are authored lyric onsets, not detected
+ * beats or instrumental passages. A large gap is only a likely interlude.
+ * Pure state machine: pausing freezes the cue because the song clock freezes.
+ */
+export const INTERLUDE_MIN_GAP_SECONDS = 20;
+export const INTERLUDE_GRACE_SECONDS = 7;
+export const CUE_PREPARE_SECONDS = 3;
+export const CUE_NOW_SECONDS = 1.35;
+
+function cueTime(seconds) {
+  const n=Math.max(0,Math.ceil(seconds - 0.00001));
+  return String(Math.floor(n/60)).padStart(2,'0') + ':' +
+    String(n%60).padStart(2,'0');
+}
+function prepareCue(remaining,first) {
+  return {
+    kind:'prepare', label:'PREPARATE PARA CANTAR',
+    value:String(Math.max(1,Math.ceil(remaining-0.00001))),
+    detail:first?'Primera frase':'Próxima frase'
+  };
+}
+function arrivalCue() {
+  return {kind:'now',label:'¡AHORA!',value:'',detail:'Comenzá la frase'};
+}
+
+/**
+ * @param {number[]|undefined} timestamps - Monotonic sung-line starts (seconds)
+ * @param {number} clock - Current song time in seconds
+ * @param {{state?:string,countdownRemaining?:number,timed?:boolean}} options
+ * @returns {{kind:string,label:string,value:string,detail:string}|null}
+ */
+export function liveCueAt(timestamps, clock, options = {}) {
+  const state=options.state || 'playing';
+  if (state === 'countdown') {
+    const n=Math.max(1,Math.min(3,Math.ceil(Number(options.countdownRemaining)||1)));
+    return {kind:'countdown',label:'LA CANCIÓN COMIENZA EN',value:String(n),
+      detail:'Cuenta previa al inicio'};
+  }
+  if (!options.timed || state === 'finished') return null;
+  if (!Array.isArray(timestamps) || timestamps.length < 2 ||
+      !Number.isFinite(Number(clock))) return null;
+  const times=timestamps.map(item=>Number(item));
+  if (times.some((time,i)=>!Number.isFinite(time)||time<0||(i>0&&time<=times[i-1]))) return null;
+
+  const now=Math.max(0,Number(clock));
+  const first=times[0];
+
+  if (now < first) {
+    const remaining=first-now;
+    if (remaining<=CUE_PREPARE_SECONDS) return prepareCue(remaining,true);
+    return {kind:'intro',label:'INTRO',value:cueTime(remaining),
+      detail:'Hasta la primera frase'};
+  }
+  if (now < first+CUE_NOW_SECONDS && state === 'playing') return arrivalCue();
+
+  for(let i=1;i<times.length;i++){
+    const previous=times[i-1];
+    const next=times[i];
+    if(now >= next && now < next+CUE_NOW_SECONDS && state === 'playing' &&
+       next-previous >= INTERLUDE_MIN_GAP_SECONDS) return arrivalCue();
+    if(now>=next) continue;
+    // A long break might be a sustained vocal or free-form instrumental.
+    // Wait several seconds after the previous line before announcing a gap.
+    if(next-previous < INTERLUDE_MIN_GAP_SECONDS ||
+       now < previous+INTERLUDE_GRACE_SECONDS) return null;
+    const remaining=next-now;
+    if(remaining<=CUE_PREPARE_SECONDS) return prepareCue(remaining,false);
+    return {kind:'interlude',label:'INTERLUDIO',value:cueTime(remaining),
+      detail:'Hasta la próxima frase · tiempo orientativo'};
+  }
+  return null;
+}
