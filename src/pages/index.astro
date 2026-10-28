@@ -41,29 +41,6 @@ const searchIndex = songs.map(song => ({
       <span class="hero-stat"><strong>{artists.length}</strong> {artists.length === 1 ? 'artista' : 'artistas'}</span>
     </div>
   </section>
-  <section class="list-hub" aria-labelledby="lists-heading">
-    <div class="section-header"><div><span class="eyebrow eyebrow-olive">ORGANIZÁ TUS CANCIONES</span><h2 id="lists-heading">Mis listas</h2></div></div>
-    <p class="list-intro">Para cada círculo, encuentro o momento. La misma canción puede vivir en varias listas.</p>
-    <div class="lists-category"><strong>PERSONALES · ESTE DISPOSITIVO</strong><small>Se pueden modificar incluso sin internet.</small></div>
-    <form id="new-list-form" class="create-list-form">
-      <label for="new-list-name" class="sr-only">Nombre de la nueva lista</label>
-      <input id="new-list-name" name="name" required maxlength="60" placeholder="Nombre de una nueva lista…" />
-      <button type="submit" class="create-list-button">+ Crear lista</button>
-    </form>
-    <div id="personal-list-grid" class="lists-grid"></div>
-    <p id="local-list-empty" class="list-hint">Todavía no tenés listas personales. Creá una y agregá canciones desde la biblioteca.</p>
-    {publishedLists.length > 0 && <section aria-labelledby="published-list-heading" class="published-list-section">
-      <div class="lists-category"><strong id="published-list-heading">LISTAS PUBLICADAS</strong><small>Compartidas desde Pages CMS en todos tus dispositivos.</small></div>
-      <div class="lists-grid">{publishedLists.map(list => <div class="list-tile">
-        <button class="list-tile-main" type="button" data-published-list={list.id} data-list-name={list.name} data-song-ids={list.songIds.join(',')} title={'Ver lista ' + list.name}>
-          <strong>{list.name}</strong><small>{list.songIds.length} {list.songIds.length === 1 ? 'canción' : 'canciones'}</small>
-          {list.description && <span class="published-list-description">{list.description}</span>}
-        </button>
-        <span class="published-label">CMS</span>
-      </div>)}</div>
-    </section>}
-    <p id="lists-feedback" class="list-feedback" role="status" aria-live="polite"></p>
-  </section>
   <section class="library" aria-label="Biblioteca de canciones">
     <div class="section-header"><div><span class="eyebrow eyebrow-olive">TU BIBLIOTECA</span><h2>El cancionero</h2></div>
       <div class="library-editor-actions">
@@ -78,16 +55,40 @@ const searchIndex = songs.map(song => ({
       <span class="key-hint" aria-hidden="true">⌘ K</span>
     </div>
     <div class="filters">
-      <div class="filter-tabs" role="group" aria-label="Filtrar canciones">
-        <button type="button" class="filter-tab is-active" data-filter="all" aria-pressed="true">Todas <span class="tab-count">{songs.length}</span></button>
-        <button type="button" class="filter-tab" data-filter="favorites" aria-pressed="false">♡ Favoritas</button>
+      <div class="filter-primary">
+        <div class="filter-tabs" role="group" aria-label="Filtrar canciones">
+          <button type="button" class="filter-tab is-active" data-filter="all" aria-pressed="true">Todas <span class="tab-count">{songs.length}</span></button>
+          <button type="button" class="filter-tab" data-filter="favorites" aria-pressed="false">♡ Favoritas</button>
+        </div>
+        <div class="list-picker">
+          <button type="button" id="list-filter-trigger" class="filter-tab list-filter-pill" aria-haspopup="true" aria-expanded="false" aria-controls="list-filter-menu" aria-label="Elegir lista">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+            <span id="selected-list-name">Listas</span>
+            <svg aria-hidden="true" class="list-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <button id="create-list-trigger" type="button" class="create-list-icon" aria-label="Crear nueva lista" title="Crear nueva lista">+</button>
+          <div id="list-filter-menu" class="list-filter-menu" role="group" aria-label="Seleccionar lista" hidden>
+            <button type="button" class="list-menu-choice" id="list-filter-none"><span>Todas las canciones</span><span class="list-menu-check" aria-hidden="true">✓</span></button>
+            <div id="local-list-menu-group" class="list-menu-group" hidden>
+              <p class="list-menu-heading">MIS LISTAS</p>
+              <div id="personal-list-options"></div>
+            </div>
+            {publishedLists.length > 0 && <div id="published-list-menu-group" class="list-menu-group">
+              <p class="list-menu-heading">PUBLICADAS</p>
+              {publishedLists.map(list => <button type="button" class="list-menu-choice" data-published-list={list.id} data-list-name={list.name} data-song-ids={list.songIds.join(',')} aria-label={'Ver lista ' + list.name}>
+                <span class="list-menu-item-name">{list.name}</span><span class="list-menu-count">{list.songIds.length}</span>
+              </button>)}
+            </div>}
+            <p id="list-menu-empty" class="list-menu-empty" hidden>Todavía no tenés listas. Creá una con el botón +.</p>
+          </div>
+        </div>
       </div>
       <label class="sr-only" for="artist-filter">Filtrar por artista</label>
       <select class="artist-select" id="artist-filter"><option value="">Todos los artistas</option>
         {artists.map(artist => <option value={artist}>{artist}</option>)}
       </select>
     </div>
-    <div class="active-list-line"><span id="active-list-label"></span><button type="button" id="clear-list-filter" hidden>Mostrar todas ×</button></div>
+    <p id="lists-feedback" class="list-feedback" role="status" aria-live="polite"></p>
     <div class="list-heading"><span>CANCIONES</span><span id="result-count" aria-live="polite">{songs.length} resultados</span></div>
     <div class="song-list" id="song-list">
       {songs.map((song, index) => (
@@ -98,8 +99,14 @@ const searchIndex = songs.map(song => ({
             <span class="card-arrow" aria-hidden="true">↗</span>
           </a>
           <div class="song-card-actions">
-            <a class="song-edit-link" href={editSongUrl(song.id)} target="_blank" rel="noopener noreferrer" aria-label={'Editar ' + song.data.title + ' en Pages CMS'}>Editar <span aria-hidden="true">↗</span></a>
-            <button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title} aria-label={'Agregar ' + song.data.title + ' a listas'} title="Agregar a listas">+ Lista</button>
+            <a class="song-edit-link" href={editSongUrl(song.id)} target="_blank" rel="noopener noreferrer" aria-label={'Editar ' + song.data.title + ' en Pages CMS'} title="Editar canción">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg>
+              <span class="song-action-label">Editar</span>
+            </a>
+            <button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title} aria-label={'Agregar ' + song.data.title + ' a listas'} title="Agregar a listas">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h12M4 12h9M4 18h9M19 13v8M15 17h8"/></svg>
+              <span class="song-action-label">Lista</span>
+            </button>
             <button type="button" class="favorite-button" data-favorite={song.id} aria-label={'Agregar ' + song.data.title + ' a favoritas'} aria-pressed="false" title="Guardar como favorita">♡</button>
           </div>
         </article>
@@ -124,8 +131,19 @@ const searchIndex = songs.map(song => ({
   try { favorites = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { favorites = new Set(); }
   let filter = 'all';
   let activeListSongIds = null;
+  function updateFilterTabs(active) {
+    tabs.forEach(button => {
+      const selected = button.dataset.filter === active;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+  }
   window.addEventListener('cantario:list-filter', event => {
     activeListSongIds = event.detail.songIds;
+    if (event.detail.selected) {
+      filter = 'all';
+      updateFilterTabs(null);
+    } else if (filter === 'all') updateFilterTabs('all');
     draw();
   });
   const songMap = new Map(searchIndex.map(song => [song.id, song]));
@@ -154,11 +172,8 @@ const searchIndex = songs.map(song => ({
   artistSelect.addEventListener('change', draw);
   tabs.forEach(tab => tab.addEventListener('click', () => {
     filter = tab.dataset.filter;
-    tabs.forEach(button => {
-      const selected = button.dataset.filter === filter;
-      button.classList.toggle('is-active', selected);
-      button.setAttribute('aria-pressed', String(selected));
-    });
+    updateFilterTabs(filter);
+    window.dispatchEvent(new Event('cantario:clear-list-filter'));
     draw();
   }));
   document.querySelectorAll('[data-favorite]').forEach(button =>
@@ -192,6 +207,21 @@ const searchIndex = songs.map(song => ({
     <label class="sr-only" for="modal-list-name">Nombre de nueva lista</label>
     <input id="modal-list-name" name="name" maxlength="60" placeholder="Nueva lista…" required />
     <button type="submit" class="create-list-button">+ Crear y agregar</button>
+  </form>
+</dialog>
+<dialog id="create-list-dialog" class="lists-dialog create-list-dialog" aria-labelledby="create-list-title">
+  <form method="dialog" class="dialog-header">
+    <h3 id="create-list-title">Crear nueva lista</h3>
+    <button type="submit" class="close-dialog" aria-label="Cerrar">✕</button>
+  </form>
+  <p class="dialog-intro">Organizá canciones para un encuentro, un círculo o tu próximo repertorio. Tu lista queda en este dispositivo.</p>
+  <form id="new-list-form" class="create-list-form">
+    <label for="new-list-name" class="create-list-label">Nombre de la lista</label>
+    <input id="new-list-name" name="name" maxlength="60" placeholder="Ej. Cantos del círculo" required />
+    <div class="new-list-dialog-actions">
+      <button type="button" id="cancel-create-list" class="cancel-list-button">Cancelar</button>
+      <button type="submit" class="create-list-button">Crear lista</button>
+    </div>
   </form>
 </dialog>
 <script type="module" src={base + 'scripts/lists-ui.js'}></script>
