@@ -70,49 +70,6 @@ content:
       - name: duration_mmss
         label: Duración de referencia (mm:ss)
         type: string
-        pattern:
-          regex: '^(?:[0-5]?\\d:[0-5]\\d)?
-      - name: body
-        label: Letra
-        type: rich-text
-        required: true
-        description: 'En Source: [00:18.00][Am]Un paso, una huella, (inicio de línea cronometrado + acorde). Usá al menos dos tiempos crecientes, menores que Duración; las líneas sin tiempo quedan entre los puntos conocidos. Los acordes siguen usando [Am] y las indicaciones [*Suave]. Guardá en Source.'
-        options:
-          format: markdown
-          switcher: true
-          media: false
-
-  - name: lists
-    label: Listas publicadas
-    type: collection
-    path: src/content/lists
-    format: yaml-frontmatter
-    filename: "{primary}.md"
-    view:
-      fields: [title, description]
-      primary: title
-      sort: [title]
-      search: [title, description]
-    fields:
-      - name: title
-        label: Nombre de la lista
-        type: string
-        required: true
-      - name: description
-        label: Descripción
-        type: text
-      - name: songs
-        label: Canciones de la lista
-        type: reference
-        description: Una canción puede aparecer en tantas listas como quieras.
-        options:
-          collection: songs
-          multiple: true
-          value: "{name}"
-          label: "{title} — {artist}"
-          search: "title,artist"
-
-          message: 'Usá mm:ss, por ejemplo 03:45'
         description: 'Opcional. Escribí 03:45 para 3 minutos y 45 segundos (mm:ss). Se usa con las marcas [mm:ss.xx] de cada línea. Sin tiempos válidos se usa Continuo.'
       - name: body
         label: Letra

@@ -31,7 +31,7 @@ export function editableRows(markdown) {
   let inFence=false;
   for(let lineIndex=0;lineIndex<lines.length;lineIndex++){
     const raw=lines[lineIndex];
-    if(/^[ \t]*(`{3,}|~{3,})/.test(raw)) {inFence=!inFence;continue;}
+    if(/^[ \t]*(?:\x60{3,}|~{3,})/.test(raw)) {inFence=!inFence;continue;}
     if(inFence || !raw.trim() || /^[ \t]*#{1,6}[ \t]/.test(raw)) continue;
     const marker=raw.match(SOURCE_PREFIX);
     const invalid=!marker&&LOOKS_TIMED.test(raw);
