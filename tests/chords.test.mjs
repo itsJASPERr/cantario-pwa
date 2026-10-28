@@ -43,3 +43,55 @@ test('cue markup is rendered as an untrusted text node, never HTML', () => {
   assert.equal(annotation.properties['data-kind'],'cue');
   assert.equal(annotation.children[0].children[0].value,'<script>bad</script>');
 });
+
+import rehypeLyricLines from '../src/lib/rehype-lyric-lines.mjs';
+
+test('line wrapping reserves chord lane only where needed', () => {
+  const root={type:'root',children:[{type:'element',tagName:'p',properties:{},children:[
+    {type:'text',value:'[Am]Un paso\nsin acorde\ny [G]otra vez'}
+  ]}]};
+  rehypeChords()(root);
+  rehypeLyricLines()(root);
+  const rows=root.children[0].children;
+  assert.equal(rows.length,3);
+  assert.deepEqual(rows.map(row=>row.properties.className.includes('has-chord')),[true,false,true]);
+  assert.equal(rows[0].children[1].value,'Un paso');
+  assert.equal(rows[1].children[0].value,'sin acorde');
+  assert.equal(rows[2].children[0].value,'y ');
+});
+
+test('nested emphasis and hard breaks keep their formatting', () => {
+  const root={type:'root',children:[{type:'element',tagName:'p',properties:{},children:[
+    {type:'element',tagName:'em',properties:{},children:[{type:'text',value:'[C]A\nB'}]},
+    {type:'element',tagName:'br',properties:{},children:[]},
+    {type:'text',value:'C'}
+  ]}]};
+  rehypeChords()(root);
+  rehypeLyricLines()(root);
+  const rows=root.children[0].children;
+  assert.equal(rows.length,3);
+  assert.deepEqual(rows.map(row=>row.properties.className.includes('has-chord')),[true,false,false]);
+  assert.equal(rows[0].children[0].tagName,'em');
+  assert.equal(rows[1].children[0].tagName,'em');
+  assert.equal(rows[1].children[0].children[0].value,'B');
+  assert.equal(rows[2].children[0].value,'C');
+});
+
+test('plain lyric paragraphs and unrelated markup remain unchanged', () => {
+  const paragraph={type:'element',tagName:'p',properties:{},children:[{type:'text',value:'Hola\nmundo'}]};
+  const root={type:'root',children:[paragraph]};
+  rehypeLyricLines()(root);
+  assert.equal(root.children[0],paragraph);
+  assert.equal(paragraph.children[0].value,'Hola\nmundo');
+});
+
+test('chords within long lines keep their letter positions after wrapping', () => {
+  const root={type:'root',children:[{type:'element',tagName:'p',properties:{},children:[
+    {type:'text',value:'El [Am]camino es muy largo y [G]sigue por toda la canción'}
+  ]}]};
+  rehypeChords()(root);
+  rehypeLyricLines()(root);
+  const line=root.children[0].children[0];
+  assert.equal(line.properties.className.includes('has-chord'),true);
+  assert.equal(line.children.filter(n=>n.properties?.className?.includes('chord-anchor')).length,2);
+});

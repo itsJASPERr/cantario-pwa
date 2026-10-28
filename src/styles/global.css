@@ -173,7 +173,7 @@
 .lyrics .chord-anchor{display:none}
 .lyrics.show-chords .chord-anchor{display:inline-block;position:relative;width:0;height:0;vertical-align:baseline;line-height:0}
 .lyrics.show-chords .chord-chip{
-  position:absolute;left:0;bottom:0.95em;display:inline-flex;align-items:center;
+  position:absolute;left:0;bottom:1.3em;display:inline-flex;align-items:center;
   white-space:nowrap;max-width:unset;padding:0.34em 0.55em;
   background:#e5ebdc;color:#2d533a;border:1px solid #bed0b6;
   border-radius:6px;font-family:'DM Sans',system-ui,sans-serif;
@@ -181,5 +181,16 @@
   line-height:1.15;user-select:text;z-index:1;box-shadow:0 2px 3px rgba(25,50,35,.06)
 }
 .lyrics.show-chords .chord-anchor[data-kind="cue"] .chord-chip{background:#efe5cd;color:#8e653b;border-color:#dec9a0;font-style:italic}
-.lyrics.show-chords p,.lyrics.show-chords li{line-height:2.8}
+/* Each manually written lyric line is independent, so only annotated
+   lines reserve vertical room for their chord labels. */
+.lyrics .lyric-line{display:block;line-height:inherit;overflow-wrap:anywhere}
+.lyrics.show-chords p{line-height:1.85}
+.lyrics.show-chords .lyric-line{line-height:1.85}
+.lyrics.show-chords .lyric-line.has-chord{
+  line-height:2.65;
+  padding-top:0.48em;
+}
+/* Fallback for unsegmented lines (e.g. unsupported custom HTML). */
+.lyrics.show-chords p:has(.chord-anchor):not(:has(.lyric-line)){line-height:2.8}
+.lyrics.show-chords li:has(.chord-anchor){line-height:2.8}
 @media(max-width:680px){.chord-view-toolbar{gap:8px}.chord-view-label{font-size:11px}.chord-view-options button{padding:8px 11px}}

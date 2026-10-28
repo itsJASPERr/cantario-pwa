@@ -87,3 +87,15 @@ Ca[C]mino hacia vos.
 **Editing precaution:** Stay in Pages CMS **Source** mode when entering/saving chord markers. Switching to its rich-text visual mode may normalize the Markdown. We have not guaranteed that an Editor → Source round trip preserves chord tokens; verify a test song before using both modes on chord-annotated lyrics.
 
 **Current limitation:** This first release displays the chord labels above their exact text anchors but does not provide drag-and-drop editing or transposition. Closely spaced labels can overlap visually. Uploaded audio and personal lists are unchanged.
+
+## Chord layout and long songs
+
+Chord pills sit **1.3em above their character anchor**, providing more separation from the lyric baseline than before. Each manual lyric line is treated separately:
+
+- Lines with chords reserve an upper chord lane.
+- Lines without chords remain compact, even inside a verse that has other chorded lines.
+- Blank lines still separate stanzas.
+- Lyrics-only mode stays compact, without the reserved chord lane.
+- Long individual lines still wrap on narrow screens. Lines containing chords use extra line-height on all visual wraps so pills have room; unusual strings of tightly packed chords may still overlap.
+
+For predictable chord placement on mobile, write one musical phrase per Markdown source line rather than putting an entire verse on a single line. This enhancement does not change or rewrite any saved lyrics.
