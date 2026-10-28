@@ -13,3 +13,78 @@
 .lyrics-paper{background:var(--cream);border:1px solid #eee9df;box-shadow:var(--shadow);border-radius:9px;padding:clamp(28px,7vw,74px);min-height:360px}.lyrics{font-size:var(--lyric-size,20px);line-height:1.9;color:#303c33;letter-spacing:.01em;overflow-wrap:anywhere}.lyrics p{white-space:pre-line;margin:0 0 1.75em}.lyrics h2,.lyrics h3{font-size:1em;color:var(--muted);margin:2em 0 .5em;font-weight:600}.lyrics :first-child{margin-top:0}.lyrics :last-child{margin-bottom:0}.endmark{text-align:center;color:var(--accent);font-size:27px;margin-top:44px}.reader-bottom{text-align:center;margin:36px 0}.reader-bottom>a{font-size:13px;color:var(--forest);border-bottom:1px solid var(--accent);padding-bottom:6px}
 @media(max-width:680px){.app-shell{padding:0 19px}.topbar{height:79px}.brand img{width:36px;height:36px}.brand-copy strong{font-size:25px}.brand-copy small{font-size:9px}.connection{font-size:11px}.connection .connection-label{display:none}.hero{border-radius:6px 52px 6px 6px;padding:43px 25px 30px;margin:21px 0 45px;min-height:335px}.hero h1{font-size:clamp(42px,9vw,59px)}.hero p{font-size:13px}.hero-shape-one{right:-300px}.section-header h2{font-size:34px}.editor-link{font-size:11px}.search-bar{height:56px;padding:0 15px}.key-hint{display:none}.filters{margin:19px 0 26px}.filter-tab{padding:9px 12px}.artist-select{width:100%}.song-card-main{gap:12px;padding-left:5px}.song-details strong{font-size:19px}.song-number{min-width:25px;font-size:14px}.song-card{min-height:83px}.song-card-main{min-height:82px}.favorite-button{margin-right:0;padding:12px 8px}.library-note{align-items:start}.footer{flex-direction:column;gap:9px}.topbar-reading{height:80px}.back-link{font-size:11px}.reader .breadcrumb{margin-top:15px}.reader-top{margin:3px 0 28px}.reader-top h1{font-size:46px}.reader-controls{margin-bottom:18px}.font-controls>span{display:none}.lyrics-paper{padding:34px 24px}.lyrics{line-height:1.78}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+
+/* Personal and published song lists */
+.list-hub{padding:0 0 58px;margin-bottom:56px;border-bottom:1px solid var(--border)}
+.list-intro{margin:-9px 0 25px;color:var(--muted);font-size:13px;line-height:1.7}
+.lists-category{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between;margin:23px 0 13px}
+.lists-category strong{font-size:10px;letter-spacing:.13em;color:#8b907c}
+.lists-category small{font-size:11px;color:var(--muted)}
+.create-list-form{display:flex;gap:10px;margin:0 0 16px}
+.create-list-form input{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:13px 15px;flex:1;min-width:0;color:var(--text);font-size:13px}
+.create-list-button{border:0;background:var(--forest);color:#fff;border-radius:8px;padding:12px 19px;font-size:12px;font-weight:700;white-space:nowrap}
+.create-list-button:hover{background:#3c5948}
+.lists-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.list-tile{display:flex;justify-content:space-between;align-items:stretch;background:#fffdf7;border:1px solid var(--border);border-radius:10px;min-height:83px;padding:8px;gap:4px}
+.list-tile-main{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;background:transparent;border:0;flex:1;text-align:left;padding:10px 12px;min-width:0;border-radius:8px;color:var(--text);font-family:'DM Serif Display',Georgia,serif;font-size:18px}
+.list-tile-main>strong{font-weight:400;font-size:18px;overflow-wrap:anywhere}
+.list-tile-main>small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)}
+.list-tile-main.is-selected{background:#e8ecdf;outline:2px solid #9ea994}
+.list-actions{display:flex;align-items:flex-start;gap:0}
+.list-action{border:0;background:transparent;font-size:10px;color:var(--muted);padding:10px 5px}
+.list-action:hover{text-decoration:underline}
+.delete-list{font-size:19px;color:#ad765e}
+.published-label{align-self:flex-start;color:#7b956f;background:#e9ecdf;border-radius:20px;font-size:10px;padding:5px 7px}
+.published-list-description{font-family:'DM Sans',sans-serif;color:var(--muted);font-size:11px;line-height:1.45}
+.published-list-section{margin-top:30px}
+.list-hint{font-size:12px;color:var(--muted);margin:8px 0}
+.list-feedback{font-size:12px;color:#6b744b;min-height:1em;margin-top:12px}
+.active-list-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:12px;color:#59705a;font-weight:600}
+#clear-list-filter{background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:7px;font-size:11px;color:var(--muted)}
+.song-list-button{background:#e9eddf;border:1px solid #d4d9c9;border-radius:7px;color:#344d3c;padding:9px 12px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.song-list-button:hover{background:#dbe4d3}
+.lists-dialog{border:1px solid var(--border);border-radius:16px;padding:28px;width:min(94vw,490px);max-height:85vh;overflow-y:auto;background:var(--cream);color:var(--text);box-shadow:0 22px 80px rgba(0,0,0,.24)}
+.lists-dialog::backdrop{background:rgba(18,32,24,.65)}
+.dialog-header{display:flex;align-items:start;gap:16px;justify-content:space-between}
+.dialog-header h3{margin:0;font-family:'DM Serif Display',Georgia,serif;font-size:25px;font-weight:400}
+.close-dialog{border:0;background:transparent;color:var(--muted);font-size:16px;padding:3px}
+.dialog-intro,.list-option-empty{font-size:13px;color:var(--muted);line-height:1.6}
+.song-lists-options{display:flex;flex-direction:column;gap:0;margin:19px 0}
+.list-checkbox-row{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 4px;border-bottom:1px solid var(--border);font-size:14px;cursor:pointer}
+.list-checkbox-row input{width:18px;height:18px;accent-color:var(--forest)}
+.lists-dialog .create-list-form{padding-top:17px;border-top:1px solid var(--border)}
+/* Streaming links and explicitly cached user recordings */
+.song-media{background:#f1ede2;border:1px solid #e4ddcf;border-radius:12px;padding:24px;margin:0 0 26px}
+.song-media-heading h2{font-family:'DM Serif Display',Georgia,serif;font-size:27px;font-weight:400;margin:9px 0 16px}
+.song-platform-links{display:flex;flex-wrap:wrap;gap:10px}
+.song-platform-link{display:inline-flex;align-items:center;justify-content:space-between;gap:18px;background:var(--forest);color:#fff;border-radius:8px;padding:12px 17px;font-size:13px;font-weight:700}
+.song-platform-link:hover{background:#3d5d48}
+.recordings-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.recording-item{border:1px solid var(--border);padding:15px;border-radius:10px;background:#fffdf7}
+.recording-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.recording-header strong{font-size:13px}
+.recording-header a{font-size:11px;text-decoration:underline;color:var(--muted)}
+.recording-item audio{display:block;width:100%;height:44px}
+.recording-offline-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.recording-offline-control button{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:7px;font-size:12px;color:var(--forest);font-weight:700}
+.recording-offline-control button:disabled{opacity:.45}
+.recording-offline-control span{font-size:11px;color:var(--muted);flex:1;line-height:1.5}
+.reader-published-lists{font-size:12px;color:var(--muted);line-height:1.5;margin:20px 0}
+.reader-list-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:680px){
+  .list-hub{padding-bottom:40px;margin-bottom:40px}
+  .lists-category{align-items:flex-start}
+  .lists-grid{grid-template-columns:1fr}
+  .song-list-button{font-size:11px;padding:8px 9px}
+  .song-card .song-list-button{max-width:62px}
+  .song-card-main{gap:7px}
+  .song-number{min-width:21px}
+  .song-details strong{font-size:17px}
+  .create-list-form{flex-direction:column}
+  .create-list-button{width:100%}
+  .reader-list-actions{gap:4px}
+  .song-media{padding:16px}
+  .reader-controls{align-items:flex-start;flex-wrap:wrap}
+  .lists-dialog{padding:20px}
+}
