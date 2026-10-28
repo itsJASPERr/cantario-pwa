@@ -8,6 +8,10 @@ const songs = (await getCollection('songs')).sort((a, b) =>
 const artists = [...new Set(songs.map(song => song.data.artist))].sort((a,b) =>
   a.localeCompare(b, 'es', { sensitivity: 'base' })
 );
+const publishedLists = (await getCollection('lists')).map(list => ({
+  id: list.id, name: list.data.title,
+  description: list.data.description || '', songIds: list.data.songs
+})).sort((a,b) => a.name.localeCompare(b.name, 'es'));
 const searchIndex = songs.map(song => ({
   id: song.id, title: song.data.title, artist: song.data.artist,
   language: song.data.language || '', tags: song.data.tags || [], body: song.body || ''
@@ -33,6 +37,29 @@ const searchIndex = songs.map(song => ({
       <span class="hero-stat"><strong>{artists.length}</strong> {artists.length === 1 ? 'artista' : 'artistas'}</span>
     </div>
   </section>
+  <section class="list-hub" aria-labelledby="lists-heading">
+    <div class="section-header"><div><span class="eyebrow eyebrow-olive">ORGANIZÁ TUS CANCIONES</span><h2 id="lists-heading">Mis listas</h2></div></div>
+    <p class="list-intro">Para cada círculo, encuentro o momento. La misma canción puede vivir en varias listas.</p>
+    <div class="lists-category"><strong>PERSONALES · ESTE DISPOSITIVO</strong><small>Se pueden modificar incluso sin internet.</small></div>
+    <form id="new-list-form" class="create-list-form">
+      <label for="new-list-name" class="sr-only">Nombre de la nueva lista</label>
+      <input id="new-list-name" name="name" required maxlength="60" placeholder="Nombre de una nueva lista…" />
+      <button type="submit" class="create-list-button">+ Crear lista</button>
+    </form>
+    <div id="personal-list-grid" class="lists-grid"></div>
+    <p id="local-list-empty" class="list-hint">Todavía no tenés listas personales. Creá una y agregá canciones desde la biblioteca.</p>
+    {publishedLists.length > 0 && <section aria-labelledby="published-list-heading" class="published-list-section">
+      <div class="lists-category"><strong id="published-list-heading">LISTAS PUBLICADAS</strong><small>Compartidas desde Pages CMS en todos tus dispositivos.</small></div>
+      <div class="lists-grid">{publishedLists.map(list => <div class="list-tile">
+        <button class="list-tile-main" type="button" data-published-list={list.id} data-list-name={list.name} data-song-ids={list.songIds.join(',')} title={'Ver lista ' + list.name}>
+          <strong>{list.name}</strong><small>{list.songIds.length} {list.songIds.length === 1 ? 'canción' : 'canciones'}</small>
+          {list.description && <span class="published-list-description">{list.description}</span>}
+        </button>
+        <span class="published-label">CMS</span>
+      </div>)}</div>
+    </section>}
+    <p id="lists-feedback" class="list-feedback" role="status" aria-live="polite"></p>
+  </section>
   <section class="library" aria-label="Biblioteca de canciones">
     <div class="section-header"><div><span class="eyebrow eyebrow-olive">TU BIBLIOTECA</span><h2>El cancionero</h2></div>
       <a class="editor-link" href="https://app.pagescms.org/" target="_blank" rel="noopener noreferrer">Gestionar letras <span aria-hidden="true">↗</span></a>
@@ -53,6 +80,7 @@ const searchIndex = songs.map(song => ({
         {artists.map(artist => <option value={artist}>{artist}</option>)}
       </select>
     </div>
+    <div class="active-list-line"><span id="active-list-label"></span><button type="button" id="clear-list-filter" hidden>Mostrar todas ×</button></div>
     <div class="list-heading"><span>CANCIONES</span><span id="result-count" aria-live="polite">{songs.length} resultados</span></div>
     <div class="song-list" id="song-list">
       {songs.map((song, index) => (
@@ -62,6 +90,7 @@ const searchIndex = songs.map(song => ({
             <span class="song-details"><strong>{song.data.title}</strong><span>{song.data.artist}</span></span>
             <span class="card-arrow" aria-hidden="true">↗</span>
           </a>
+          <button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title} aria-label={'Agregar ' + song.data.title + ' a listas'} title="Agregar a listas">+ Lista</button>
           <button type="button" class="favorite-button" data-favorite={song.id} aria-label={'Agregar ' + song.data.title + ' a favoritas'} aria-pressed="false" title="Guardar como favorita">♡</button>
         </article>
       ))}
@@ -84,6 +113,11 @@ const searchIndex = songs.map(song => ({
   let favorites;
   try { favorites = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { favorites = new Set(); }
   let filter = 'all';
+  let activeListSongIds = null;
+  window.addEventListener('cantario:list-filter', event => {
+    activeListSongIds = event.detail.songIds;
+    draw();
+  });
   const songMap = new Map(searchIndex.map(song => [song.id, song]));
   function draw() {
     const query = normalize(input.value.trim());
@@ -93,7 +127,8 @@ const searchIndex = songs.map(song => ({
       const song = songMap.get(card.dataset.id);
       const searchable = normalize([song.title, song.artist, song.language, song.tags.join(' '), song.body].join(' '));
       const show = (!query || searchable.includes(query)) && (!artist || artist === song.artist) &&
-        (filter !== 'favorites' || favorites.has(song.id));
+        (filter !== 'favorites' || favorites.has(song.id)) &&
+        (activeListSongIds === null || activeListSongIds.includes(song.id));
       card.hidden = !show;
       if (show) visible++;
       const button = card.querySelector('[data-favorite]');
@@ -139,4 +174,15 @@ const searchIndex = songs.map(song => ({
   });
   draw();
 </script>
+<dialog id="song-lists-dialog" class="lists-dialog" aria-labelledby="manage-song-title">
+  <form method="dialog" class="dialog-header"><h3 id="manage-song-title">Agregar a listas</h3><button type="submit" class="close-dialog" aria-label="Cerrar">✕</button></form>
+  <p class="dialog-intro">Marcá todas las listas donde querés guardar esta canción. Los cambios se conservan en este dispositivo.</p>
+  <div id="song-lists-options" class="song-lists-options"></div>
+  <form id="modal-new-list-form" class="create-list-form">
+    <label class="sr-only" for="modal-list-name">Nombre de nueva lista</label>
+    <input id="modal-list-name" name="name" maxlength="60" placeholder="Nueva lista…" required />
+    <button type="submit" class="create-list-button">+ Crear y agregar</button>
+  </form>
+</dialog>
+<script type="module" src={base + 'scripts/lists-ui.js'}></script>
 </BaseLayout>
