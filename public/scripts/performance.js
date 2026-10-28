@@ -29,6 +29,10 @@ import {
   const countdownButton = document.getElementById('performance-countdown');
   const controlsToggle = document.getElementById('performance-toggle-controls');
   const noScroll = document.getElementById('performance-no-scroll');
+  const settingsToggle = document.getElementById('performance-settings-toggle');
+  const settingsDrawer = document.getElementById('performance-settings');
+  const settingsClose = document.getElementById('performance-settings-close');
+  const mobileControls = window.matchMedia('(max-width: 700px), (max-height: 500px) and (max-width: 950px)');
 
   const KEY = {
     duration:'cantario:performance:duration:v1',
@@ -66,6 +70,48 @@ import {
   // precision. Some browsers round scrollTop when moving <1 pixel per frame.
   let virtualPosition = 0;
   let elapsedSeconds = 0;
+  let settingsOpen = false;
+  let settingsTimer = null;
+
+  function isMobileControls() {
+    return mobileControls.matches;
+  }
+  function clearSettingsTimer() {
+    if (settingsTimer !== null) clearTimeout(settingsTimer);
+    settingsTimer = null;
+  }
+  function isEditingSetting() {
+    const active = document.activeElement;
+    return Boolean(active && settingsDrawer?.contains(active) &&
+      ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName));
+  }
+  function scheduleSettingsCollapse() {
+    clearSettingsTimer();
+    if (!settingsOpen || state !== 'playing' || !isMobileControls() || isEditingSetting()) return;
+    settingsTimer = setTimeout(() => {
+      settingsTimer = null;
+      if (dialog.open && settingsOpen && state === 'playing' && !isEditingSetting()) {
+        setSettingsOpen(false);
+      }
+    }, 5000);
+  }
+  function setSettingsOpen(value) {
+    settingsOpen = isMobileControls() && Boolean(value);
+    dialog.classList.toggle('settings-open', settingsOpen);
+    settingsToggle?.setAttribute('aria-expanded', String(settingsOpen));
+    settingsToggle?.setAttribute('aria-label', settingsOpen ? 'Cerrar ajustes de escenario' : 'Abrir ajustes de escenario');
+    if (settingsDrawer) settingsDrawer.inert = isMobileControls() && !settingsOpen;
+    if (settingsOpen) scheduleSettingsCollapse();
+    else clearSettingsTimer();
+  }
+  function syncSettingsLayout() {
+    if (!isMobileControls()) setSettingsOpen(false);
+    else {
+      settingsDrawer.inert = !settingsOpen;
+      settingsToggle?.setAttribute('aria-expanded', String(settingsOpen));
+      if (settingsOpen) scheduleSettingsCollapse();
+    }
+  }
 
   function setStatus(message) {
     status.textContent = message;
@@ -100,6 +146,7 @@ import {
     play.disabled = distance < 1 && state !== 'playing' && state !== 'countdown';
   }
   function syncPlay() {
+    dialog.classList.toggle('is-playing', state === 'playing');
     if (state === 'playing') play.textContent = 'Ⅱ Pausar';
     else if (state === 'countdown') play.textContent = '× Cancelar';
     else if (state === 'paused') play.textContent = '▶ Continuar';
@@ -121,12 +168,14 @@ import {
     cancelCountdown();
     stopFrame();
     state = 'paused';
+    clearSettingsTimer();
     setStatus(message);
     syncPlay();
   }
   function finished() {
     stopFrame();
     state = 'finished';
+    clearSettingsTimer();
     setStatus('Fin de la canción · ¡Buen canto!');
     syncPlay();
   }
@@ -176,6 +225,8 @@ import {
     }, 80);
   }
   function onPlay() {
+    // Playing or resuming always returns to the unobstructed mobile lyrics view.
+    if (isMobileControls()) setSettingsOpen(false);
     if (state === 'playing' || state === 'countdown') { pause(); return; }
     if (state === 'finished') {
       scroll.scrollTop = 0;
@@ -272,6 +323,11 @@ import {
   }
 
   function setControlsHidden(hidden) {
+    // Never hide the essential play/pause bar on small screens.
+    if (isMobileControls()) {
+      if (settingsOpen) setSettingsOpen(false);
+      return;
+    }
     dialog.classList.toggle('controls-hidden', hidden);
     controlsToggle.textContent = hidden ? '⚙ Controles' : 'Ocultar controles';
     controlsToggle.setAttribute('aria-pressed', String(!hidden));
@@ -296,6 +352,8 @@ import {
     setCountdown(read(KEY.countdown,'yes') !== 'no');
     wakeEnabled = read(KEY.wake,'yes') !== 'no';
     setControlsHidden(false);
+    setSettingsOpen(false);
+    syncSettingsLayout();
     setStatus('Listo para cantar');
     syncPlay();
   }
@@ -316,6 +374,8 @@ import {
   entry.addEventListener('click', enter);
   exit.addEventListener('click', leave);
   dialog.addEventListener('close', () => {
+    setSettingsOpen(false);
+    clearSettingsTimer();
     stopFrame();
     cancelCountdown();
     void releaseWakeLock();
@@ -332,6 +392,35 @@ import {
   countdownButton.addEventListener('click', () => setCountdown(!countdownEnabled));
   wake.addEventListener('click', () => setWake(!wakeEnabled));
   controlsToggle.addEventListener('click', () => setControlsHidden(!dialog.classList.contains('controls-hidden')));
+  settingsToggle?.addEventListener('click', () => setSettingsOpen(!settingsOpen));
+  settingsClose?.addEventListener('click', () => {
+    setSettingsOpen(false);
+    settingsToggle?.focus();
+  });
+
+  // A drawer is temporary. Keep it open during field editing; auto-close
+  // after five seconds of inactivity only while actively scrolling.
+  settingsDrawer?.addEventListener('pointerdown', scheduleSettingsCollapse);
+  settingsDrawer?.addEventListener('input', scheduleSettingsCollapse);
+  settingsDrawer?.addEventListener('change', scheduleSettingsCollapse);
+  settingsDrawer?.addEventListener('keydown', scheduleSettingsCollapse);
+  settingsDrawer?.addEventListener('focusin', event => {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) clearSettingsTimer();
+    else scheduleSettingsCollapse();
+  });
+  settingsDrawer?.addEventListener('focusout', () => {
+    requestAnimationFrame(() => scheduleSettingsCollapse());
+  });
+  dialog.addEventListener('pointerdown', event => {
+    if (!isMobileControls() || !settingsOpen) return;
+    if (settingsDrawer.contains(event.target) || settingsToggle.contains(event.target)) return;
+    setSettingsOpen(false);
+  });
+  mobileControls.addEventListener('change', () => {
+    if (!dialog.open) return;
+    syncSettingsLayout();
+    updateProgress();
+  });
 
   // Never fight a musician's manual scroll. Swipes and wheel movements pause.
   scroll.addEventListener('wheel', () => {
@@ -382,6 +471,7 @@ import {
 
   window.addEventListener('resize', () => {
     if (!dialog.open) return;
+    syncSettingsLayout();
     updateProgress();
     if (state === 'playing' && physicalDistance() === 0) pause('La canción cabe en pantalla');
   });
