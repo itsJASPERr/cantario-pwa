@@ -272,3 +272,121 @@
   .performance-toggle-controls{font-size:10px}
   .performance-extras button{font-size:10px}
 }
+
+
+/* Cantario v0.3.1 — compact mobile performance bar and overlay drawer.
+   Desktop retains its original expanded performance controls. */
+.performance-compact-bar,.performance-settings{display:contents}
+.performance-settings-toggle,.performance-settings-heading{display:none}
+@media(max-width:700px), (max-height:500px) and (max-width:950px){
+  .performance-dialog .performance-header{
+    display:grid;grid-template-columns:minmax(70px,auto) 1fr minmax(70px,auto);
+    min-height:49px;padding:5px max(12px,env(safe-area-inset-right)) 5px max(12px,env(safe-area-inset-left));
+    gap:4px;
+  }
+  .performance-dialog .performance-heading{grid-column:2;justify-self:center;text-align:center;max-width:100%;min-width:0}
+  .performance-dialog .performance-heading strong{font-size:15px}
+  .performance-dialog.is-playing .performance-heading strong{font-size:13px}
+  .performance-dialog .performance-heading span{display:none}
+  .performance-dialog .performance-exit{grid-column:1;min-height:42px;padding:7px 10px}
+  .performance-dialog .performance-toggle-controls{display:none}
+  .performance-dialog .performance-controls{
+    position:relative;z-index:15;max-height:none;height:auto;overflow:visible;
+    padding:6px max(10px,env(safe-area-inset-right)) max(7px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+    box-shadow:0 -6px 24px rgba(0,0,0,.15);
+  }
+  .performance-dialog.controls-hidden .performance-controls{display:block}
+  .performance-dialog .performance-compact-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:5px;min-height:56px;width:100%;
+  }
+  .performance-dialog .performance-play-row{
+    display:flex;align-items:center;justify-content:flex-start;flex:0 1 auto;min-width:0;max-width:none;
+    gap:5px;margin:0;order:0;
+  }
+  .performance-dialog .performance-speed-button{
+    width:44px;height:48px;min-height:48px;flex:0 0 44px;
+    border-radius:9px;font-size:23px;padding:0;
+  }
+  .performance-dialog .performance-play{
+    height:48px;min-height:48px;width:78px;flex:0 0 78px;
+    border-radius:9px;font-size:12px;padding:0 2px;white-space:nowrap;
+  }
+  .performance-dialog .performance-status{
+    display:flex;align-items:center;justify-content:center;order:1;
+    flex:1 1 auto;min-width:46px;max-width:95px;min-height:0;
+  }
+  .performance-dialog #performance-status{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+  .performance-dialog #performance-progress{
+    display:block;text-align:center;font-size:11px;line-height:1.35;
+    max-width:100%;white-space:normal;font-weight:700;overflow-wrap:normal;
+  }
+  .performance-dialog .performance-no-scroll{display:none}
+  .performance-dialog .performance-settings-toggle{
+    order:2;display:flex;align-items:center;justify-content:center;flex:0 0 44px;
+    width:44px;height:48px;min-height:48px;background:#355541;color:#f4f4e9;
+    border:1px solid #65836c;border-radius:10px;cursor:pointer;
+  }
+  .performance-dialog .performance-settings-toggle[aria-expanded="true"]{
+    background:#c9ddbb;color:#23412e;border-color:#c9ddbb;
+  }
+  .performance-dialog .performance-settings{
+    position:absolute;bottom:calc(100% + 7px);
+    left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));
+    z-index:25;display:none;
+    max-height:min(300px,calc(100dvh - 130px));overflow-y:auto;
+    overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    background:#2a4535;border:1px solid #65836b;border-radius:15px;
+    padding:14px 15px 15px;box-shadow:0 -18px 45px rgba(0,0,0,.35);
+  }
+  .performance-dialog.settings-open .performance-settings{display:block}
+  .performance-dialog .performance-settings-heading{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:0 0 14px;min-height:29px;
+  }
+  .performance-dialog .performance-settings-heading strong{
+    font:600 14px 'DM Sans',sans-serif;color:#f4eee0;
+  }
+  .performance-dialog .performance-settings-heading button{
+    display:flex;align-items:center;justify-content:center;
+    min-width:40px;min-height:40px;background:#375843;
+    border:1px solid #69856c;border-radius:9px;color:#f0ede0;font-size:24px;
+  }
+  .performance-dialog .performance-timing{
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
+    max-width:none;margin:0 0 13px;justify-content:stretch;
+  }
+  .performance-dialog .performance-timing label{font-size:13px}
+  .performance-dialog .performance-timing select{min-height:42px;min-width:98px}
+  .performance-dialog .performance-speed-label{
+    grid-column:1 / -1;justify-self:start;margin:0;color:#dce6d9;
+  }
+  .performance-dialog .performance-extras{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;justify-items:stretch;gap:8px;
+  }
+  .performance-dialog .performance-extras button{
+    font-size:11px;line-height:1.3;padding:9px 7px;min-height:44px;white-space:normal;
+  }
+  .performance-dialog .performance-font-row{display:flex;width:100%;gap:6px}
+  .performance-dialog .performance-font-row button{flex:1;min-width:0}
+  .performance-dialog .performance-extras #performance-wake{grid-column:auto}
+}
+@media(max-width:365px){
+  .performance-dialog .performance-compact-bar{gap:3px}
+  .performance-dialog .performance-play-row{gap:3px}
+  .performance-dialog .performance-speed-button{width:42px;flex-basis:42px}
+  .performance-dialog .performance-play{width:70px;flex-basis:70px;font-size:11px}
+  .performance-dialog .performance-settings-toggle{width:42px;flex-basis:42px}
+  .performance-dialog #performance-progress{font-size:10px}
+}
+@media(max-height:500px) and (max-width:950px){
+  .performance-dialog .performance-settings{
+    max-height:min(245px,calc(100dvh - 118px));padding:10px 13px;
+  }
+  .performance-dialog .performance-settings-heading{margin-bottom:8px}
+  .performance-dialog .performance-timing{margin-bottom:8px}
+  .performance-dialog .performance-scroll{padding-left:20px;padding-right:20px}
+}
