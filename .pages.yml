@@ -1,0 +1,50 @@
+media:
+  input: public/media
+  output: /cantario-pwa/media
+content:
+  - name: songs
+    label: Canciones
+    type: collection
+    path: src/content/songs
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, artist, language]
+      primary: title
+      search: [title, artist, language]
+      sort: [title, artist]
+      default:
+        sort: title
+        order: asc
+    fields:
+      - name: title
+        label: Título
+        type: string
+        required: true
+      - name: artist
+        label: Artista
+        type: string
+        required: true
+      - name: language
+        label: Idioma
+        type: select
+        options:
+          values:
+            - { name: es, label: Español }
+            - { name: en, label: English }
+            - { name: pt, label: Português }
+            - { name: de, label: Deutsch }
+            - { name: other, label: Otro }
+      - name: tags
+        label: Etiquetas
+        type: string
+        list: true
+      - name: body
+        label: Letra
+        type: rich-text
+        required: true
+        description: Una línea por verso y una línea vacía entre estrofas. Usa Source para editar el Markdown.
+        options:
+          format: markdown
+          switcher: true
+          media: false

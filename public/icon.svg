@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Cantario">
+<rect width="512" height="512" rx="112" fill="#253d31"/>
+<circle cx="256" cy="235" r="145" fill="#d7a56d"/>
+<path d="M130 256c44-15 84-13 126 11 42-24 82-26 126-11v111c-44-15-84-13-126 11-42-24-82-26-126-11V256Z" fill="#f6f2e8"/>
+<path d="M256 269v108" stroke="#253d31" stroke-width="13" stroke-linecap="round"/>
+<path d="M166 292c21-3 42 0 59 10M166 321c21-3 42 0 59 10M287 302c17-10 38-13 59-10M287 331c17-10 38-13 59-10" stroke="#d7a56d" stroke-width="10" stroke-linecap="round" fill="none"/>
+<path d="M216 164c8-9 16-9 24 0s16 9 24 0 16-9 24 0 16 9 24 0" fill="none" stroke="#253d31" stroke-width="13" stroke-linecap="round"/>
+</svg>
