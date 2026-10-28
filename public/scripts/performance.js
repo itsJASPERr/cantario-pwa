@@ -72,6 +72,7 @@ import {
   let elapsedSeconds = 0;
   let settingsOpen = false;
   let settingsTimer = null;
+  let countdownRemaining = 0;
 
   function isMobileControls() {
     return mobileControls.matches;
@@ -96,6 +97,7 @@ import {
     }, 5000);
   }
   function setSettingsOpen(value) {
+    const restoreFocus = isMobileControls() && !value && settingsDrawer?.contains(document.activeElement);
     settingsOpen = isMobileControls() && Boolean(value);
     dialog.classList.toggle('settings-open', settingsOpen);
     settingsToggle?.setAttribute('aria-expanded', String(settingsOpen));
@@ -103,6 +105,7 @@ import {
     if (settingsDrawer) settingsDrawer.inert = isMobileControls() && !settingsOpen;
     if (settingsOpen) scheduleSettingsCollapse();
     else clearSettingsTimer();
+    if (restoreFocus) settingsToggle?.focus({preventScroll:true});
   }
   function syncSettingsLayout() {
     if (!isMobileControls()) setSettingsOpen(false);
@@ -138,9 +141,9 @@ import {
     const time = Math.floor(elapsedSeconds);
     const clock = String(Math.floor(time / 60)).padStart(2, '0') + ':' +
       String(time % 60).padStart(2, '0');
-    progress.textContent = distance
-      ? value + '% · ' + clock
-      : 'Todo visible';
+    progress.textContent = state === 'countdown'
+      ? countdownRemaining + '…'
+      : distance ? value + '% · ' + clock : 'Todo visible';
     noScroll.hidden = distance > 0;
     // Only a genuinely non-scrollable (empty) page disables Start.
     play.disabled = distance < 1 && state !== 'playing' && state !== 'countdown';
@@ -212,6 +215,7 @@ import {
   }
   function beginCountdown() {
     state = 'countdown';
+    countdownRemaining = 3;
     const deadline = performance.now() + 3000;
     setStatus('Comenzamos en 3…');
     syncPlay();
@@ -221,7 +225,11 @@ import {
       if (left <= 0) {
         cancelCountdown();
         beginPlaying();
-      } else setStatus('Comenzamos en ' + left + '…');
+      } else {
+        countdownRemaining = left;
+        setStatus('Comenzamos en ' + left + '…');
+        updateProgress();
+      }
     }, 80);
   }
   function onPlay() {
@@ -341,6 +349,7 @@ import {
     scroll.scrollTop = 0;
     virtualPosition = 0;
     elapsedSeconds = 0;
+    countdownRemaining = 0;
     // Sync with Cantario's existing reader preference keys.
     fontSize = Math.min(32, Math.max(12, Number(read(KEY.size,20)) || 20));
     chordsVisible = read(KEY.chords,'yes') !== 'no';
