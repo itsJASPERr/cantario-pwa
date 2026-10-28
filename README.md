@@ -122,3 +122,12 @@ Performance mode bases its speed on the actual scrollable height, adapting to fo
 
 ### v0.3 scrolling reliability fix
 Short songs now remain scrollable in Modo Escenario even if all lyric lines initially fit in the reading area. The scrolling container uses a larger trailing space and stops with the last lines still readable. Its target is measured from the actual position of the final lyric, not from an offset parent that may vary between browsers. Automatic movement accumulates sub-pixel changes independent of browser rounding, and the progress indicator includes elapsed time. If a song scrolls very slowly at the default 3:30 duration, choose **1:00** and increase speed with **+** to test immediately; saved preferences remain unchanged.
+
+
+## Modo Escenario mobile controls (v0.3.1)
+
+Mobile and phone-landscape performance screens show a **compact, always-available bottom bar** with − / Play-Pause / +, progress and elapsed time, and an **Ajustes** icon. The bar occupies approximately 70–76 px, plus the safe area of the device.
+
+The settings icon opens a temporary dark drawer **over** the song, without resizing the scroll viewport, containing the existing song-duration, font-size, chord-visibility, countdown and screen-awake settings. Tap outside the drawer, tap its close control, or press Play/Resume to close it. If the song is playing, it closes automatically after five seconds without interaction, except while editing a field.
+
+The normal desktop controls are unchanged. All existing localStorage settings are retained, and no CMS or song format migration is required. The compact bar is never auto-hidden; Pause remains easy to reach.

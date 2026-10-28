@@ -333,6 +333,7 @@ import {
   function setControlsHidden(hidden) {
     // Never hide the essential play/pause bar on small screens.
     if (isMobileControls()) {
+      dialog.classList.remove('controls-hidden');
       if (settingsOpen) setSettingsOpen(false);
       return;
     }
