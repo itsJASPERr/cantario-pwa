@@ -186,6 +186,14 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <button type="button" class="performance-toggle-controls" id="performance-toggle-controls" aria-pressed="true" aria-label="Mostrar u ocultar los controles">Ocultar controles</button>
     </header>
 
+    <!-- Floating overlay: does not resize or move the lyrics as cues change. -->
+    <div class="performance-live-cue" id="performance-live-cue" role="group"
+      aria-label="Indicación de entrada musical" aria-live="off" hidden>
+      <span class="performance-cue-label" id="performance-cue-label"></span>
+      <strong class="performance-cue-value" id="performance-cue-value"></strong>
+      <span class="performance-cue-detail" id="performance-cue-detail"></span>
+    </div>
+
     <section class="performance-scroll" id="performance-scroll" tabindex="0" aria-label="Letra de la canción en modo escenario. Deslizá para pausar el desplazamiento automático.">
       <div class="performance-lead">
         <p>♫ CANTARIO · MODO ESCENARIO</p>

@@ -1,7 +1,7 @@
 import {
   normalizeDuration, normalizeSpeed, maxScrollDistance, scrollRate,
   advanceScroll, progressPercent, MIN_SPEED, MAX_SPEED, SPEED_STEP,
-  makeTimedTrack, timedPositionAt, timedClockAtPosition
+  makeTimedTrack, timedPositionAt, timedClockAtPosition, liveCueAt
 } from './performance-core.mjs';
 
 // No third-party dependencies or network calls: the entire performance reader
@@ -33,6 +33,10 @@ import {
   const settingsToggle = document.getElementById('performance-settings-toggle');
   const settingsDrawer = document.getElementById('performance-settings');
   const settingsClose = document.getElementById('performance-settings-close');
+  const cueElement = document.getElementById('performance-live-cue');
+  const cueLabel = document.getElementById('performance-cue-label');
+  const cueValue = document.getElementById('performance-cue-value');
+  const cueDetail = document.getElementById('performance-cue-detail');
   const modeSelect = document.getElementById('performance-mode');
   const modeWrap = document.getElementById('performance-mode-wrap');
   const timedDescription = document.getElementById('performance-timed-description');
@@ -87,6 +91,7 @@ import {
   let timedLines = [];
   let activeLine = null;
   let manualPositionChanged = false;
+  let lastCueSignature = '';
 
   function isMobileControls() {
     return mobileControls.matches;
@@ -212,7 +217,32 @@ import {
     updateActiveTimedLine();
     updateProgress();
   }
+  function updateLiveCue() {
+    if (!cueElement) return;
+    const cue = liveCueAt(timedLines.map(line=>line.time), songClock, {
+      timed:mode === 'timed' && Boolean(timedTrack),
+      state,
+      countdownRemaining
+    });
+    if (!cue) {
+      if (!cueElement.hidden) cueElement.hidden = true;
+      lastCueSignature = '';
+      return;
+    }
+    // Pause freezes songClock; show that the cue is not actively counting.
+    const label = state === 'paused' ? 'EN PAUSA · ' + cue.label : cue.label;
+    const signature = [cue.kind,label,cue.value,cue.detail].join('|');
+    if (signature === lastCueSignature && !cueElement.hidden) return;
+    cueLabel.textContent = label;
+    cueValue.textContent = cue.value;
+    cueDetail.textContent = cue.detail;
+    cueValue.hidden = !cue.value;
+    cueElement.dataset.kind = cue.kind;
+    cueElement.hidden = false;
+    lastCueSignature = signature;
+  }
   function updateProgress() {
+    updateLiveCue();
     const distance = physicalDistance();
     const value = distance ? progressPercent(scroll.scrollTop, distance) : 100;
     progress.textContent = state === 'countdown'
@@ -453,6 +483,8 @@ import {
     elapsedSeconds = 0;
     songClock = 0;
     manualPositionChanged = false;
+    if (cueElement) cueElement.hidden = true;
+    lastCueSignature = '';
     if (activeLine) activeLine.classList.remove('is-current');
     activeLine = null;
     countdownRemaining = 0;
@@ -499,6 +531,8 @@ import {
     cancelCountdown();
     void releaseWakeLock();
     state = 'ready';
+    if (cueElement) cueElement.hidden = true;
+    lastCueSignature = '';
     if (activeLine) activeLine.classList.remove('is-current');
     activeLine = null;
     if (previousFocus?.isConnected) previousFocus.focus();

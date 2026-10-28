@@ -431,3 +431,43 @@
   border-radius:5px;
   box-shadow:0 0 0 5px rgba(147,190,143,.15);
 }
+
+
+/* v0.4.0a — visual cue for intro, first lyric, and likely interludes.
+   Floating overlay avoids changing the scroll viewport during count-ins. */
+.performance-shell{position:relative}
+.performance-live-cue{
+  position:absolute;z-index:8;top:72px;left:50%;transform:translateX(-50%);
+  pointer-events:none;box-sizing:border-box;min-height:62px;
+  max-width:min(420px,calc(100% - 24px));width:max-content;min-width:210px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3px 11px;
+  padding:10px 18px;
+  color:#f6f3e8;background:rgba(40,65,48,.97);
+  border:1px solid #7e9e7c;border-radius:13px;
+  box-shadow:0 9px 26px rgba(0,0,0,.30);
+  text-align:center;font-family:'DM Sans',sans-serif;
+}
+.performance-live-cue[hidden],.performance-cue-value[hidden]{display:none!important}
+.performance-cue-label{font-size:12px;font-weight:700;letter-spacing:.065em;color:#dbeed2;white-space:nowrap}
+.performance-cue-value{font-size:27px;line-height:1;font-weight:800;color:#fff1bb;font-variant-numeric:tabular-nums;white-space:nowrap}
+.performance-cue-detail{display:block;flex-basis:100%;font-size:10px;line-height:1.2;color:#c5d9c3}
+.performance-live-cue[data-kind="prepare"]{background:rgba(66,76,43,.98);border-color:#d6c77c}
+.performance-live-cue[data-kind="prepare"] .performance-cue-value{font-size:32px}
+.performance-live-cue[data-kind="now"]{background:rgba(53,95,58,.98);border-color:#b1d4a1}
+.performance-live-cue[data-kind="now"] .performance-cue-label{font-size:18px;color:#f2ffe7}
+.performance-live-cue[data-kind="interlude"]{background:rgba(48,65,69,.98);border-color:#849ca0}
+.performance-live-cue[data-kind="countdown"]{background:rgba(67,75,47,.98);border-color:#cec588}
+@media(max-width:700px), (max-height:500px) and (max-width:950px){
+  .performance-live-cue{
+    top:56px;min-height:56px;padding:8px 13px;gap:2px 8px;
+    max-width:calc(100% - 20px);min-width:190px;border-radius:11px;
+  }
+  .performance-cue-label{font-size:11px}
+  .performance-cue-value{font-size:26px}
+  .performance-cue-detail{font-size:10px}
+}
+@media(max-height:500px) and (max-width:950px){
+  .performance-live-cue{top:51px;min-height:46px;padding:5px 10px}
+  .performance-cue-value{font-size:22px}
+  .performance-cue-detail{display:none}
+}

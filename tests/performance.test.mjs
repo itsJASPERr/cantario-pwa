@@ -79,3 +79,60 @@ test('manual scroll can approximate the running song clock on resuming',()=>{
  assert.ok(Math.abs(timedClockAtPosition(track,145)-22.5)<1e-6);
  assert.ok(Math.abs(timedPositionAt(track,timedClockAtPosition(track,145))-145)<1e-6);
 });
+
+
+import {liveCueAt,INTERLUDE_MIN_GAP_SECONDS,INTERLUDE_GRACE_SECONDS}
+  from '../public/scripts/performance-core.mjs';
+
+test('live intro cue shows remaining seconds before first sung line',()=>{
+ const points=[12,19,28,36,63];
+ assert.deepEqual(liveCueAt(points,0,{timed:true,state:'ready'}),{
+   kind:'intro',label:'INTRO',value:'00:12',detail:'Hasta la primera frase'
+ });
+ assert.equal(liveCueAt(points,6.1,{timed:true}).value,'00:06');
+ assert.deepEqual(liveCueAt(points,9.1,{timed:true,state:'playing'}),{
+   kind:'prepare',label:'PREPARATE PARA CANTAR',value:'3',detail:'Primera frase'
+ });
+ assert.equal(liveCueAt(points,11.2,{timed:true}).value,'1');
+ assert.equal(liveCueAt(points,12,{timed:true,state:'playing'}).kind,'now');
+ assert.equal(liveCueAt(points,13.4,{timed:true,state:'playing'}),null);
+});
+test('generic pre-start 3-2-1 is visible even without timed lyrics',()=>{
+ assert.equal(liveCueAt([],0,{timed:false,state:'countdown',countdownRemaining:3}).value,'3');
+ assert.equal(liveCueAt([],0,{timed:false,state:'countdown',countdownRemaining:2}).value,'2');
+ assert.equal(liveCueAt([],0,{timed:false,state:'countdown',countdownRemaining:1}).value,'1');
+ assert.equal(liveCueAt([],0,{timed:false,state:'playing'}),null);
+});
+test('interlude cue uses conservative long-gap threshold and grace period',()=>{
+ const points=[12,19,36,63,72]; // 27 second gap from 36 to 63
+ assert.equal(INTERLUDE_MIN_GAP_SECONDS,20);
+ assert.equal(INTERLUDE_GRACE_SECONDS,7);
+ assert.equal(liveCueAt(points,39,{timed:true}),null);
+ assert.equal(liveCueAt(points,42.99,{timed:true}),null);
+ const middle=liveCueAt(points,44,{timed:true});
+ assert.equal(middle.kind,'interlude');
+ assert.equal(middle.value,'00:19');
+ assert.equal(liveCueAt(points,60.3,{timed:true}).kind,'prepare');
+ assert.equal(liveCueAt(points,63,{timed:true}).kind,'now');
+ assert.equal(liveCueAt(points,64.5,{timed:true}),null);
+});
+test('normal long lyric phrases are not falsely classified as interludes',()=>{
+ assert.equal(liveCueAt([4,18,34],10,{timed:true}),null);
+ assert.equal(liveCueAt([4,23,46],11,{timed:true}),null);
+ assert.equal(liveCueAt([4,23,46],22,{timed:true}),null);
+});
+test('missing, invalid, or disabled timing produces no intro or interlude cues',()=>{
+ for (const items of [[],[12],[20,12],[12,12],[12,NaN]]) {
+   assert.equal(liveCueAt(items,0,{timed:true}),null);
+ }
+ assert.equal(liveCueAt([12,40],0,{timed:false}),null);
+ assert.equal(liveCueAt([12,40],35,{timed:false}),null);
+ assert.equal(liveCueAt([12,40],35,{timed:true,state:'finished'}),null);
+});
+test('cue timestamps freeze through pause and only resume on advancing clock',()=>{
+ const points=[12,36,63];
+ const paused=liveCueAt(points,44.1,{timed:true,state:'paused'});
+ const playing=liveCueAt(points,44.1,{timed:true,state:'playing'});
+ assert.deepEqual(paused,playing);
+ assert.equal(paused.value,'00:19');
+});

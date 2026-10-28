@@ -164,3 +164,14 @@ The synchronized reader subtly highlights the currently timed lyric line as the 
 
 ### CMS duration field update
 The song duration is now a plain text field named `duration_mmss` with format **mm:ss**, such as `04:52` or `02:25`. Pages CMS displays **Duración de referencia (mm:ss)**. The synchronized performance engine parses the value into seconds internally. Existing demo and user song durations were converted without touching their lyrics. Previous `duration_seconds` values remain supported for older files that haven't been migrated. Incorrect values safely disable Synchronized mode for that song; Continuous mode remains available. Use a two-digit seconds component (for example `03:05`, not `3:5`).
+
+
+## v0.4.0a — Live Start Cue and likely interludes (#6)
+
+The performance view now provides a compact floating visual cue near the top of the song **without resizing the lyric viewport**.
+
+- In **Sincronizado**, before the first lyric timestamp it shows \`INTRO · mm:ss\` as a countdown to that first sung line. The final three seconds show \`PREPARATE · 3 / 2 / 1\`, then briefly \`¡AHORA!\` at the timestamp.
+- The optional pre-start 3-second countdown is separate from the song's intro and is also shown here, including in Continuous mode. It does **not** consume the song's own clock.
+- A **likely interlude** is inferred when two consecutive annotated lyric timestamps are at least 20 seconds apart. The cue does not announce it until at least 7 seconds after the preceding lyric onset. It then counts down to the next line and displays another prepare / now cue. These are heuristics, not detection of instrumental music.
+- Pausing freezes the reference clock and its visible countdown. Restarting resets it. When there are no valid timestamps, or the reader is set to **Continuo**, no inferred INTRO or INTERLUDIO is displayed.
+- The floating cue does not alter the timing file format, song metadata, source lyrics, compact performance controls, or audio. No new CMS fields are needed. It remains offline-first.
