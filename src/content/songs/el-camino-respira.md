@@ -7,10 +7,10 @@ tags:
   - camino
 ---
 
-Un paso, una huella,
-la tierra me deja estar.
-El viento trae canciones,
-el alma aprende a escuchar.
+[Am]Un paso, una huella,
+la [G]tierra me deja estar.
+El [F]viento trae canciones,
+el [C]alma aprende a escuchar.
 
 Cuando la noche se acerca
 y no sé hacia dónde voy,

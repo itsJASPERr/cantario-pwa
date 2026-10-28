@@ -59,3 +59,31 @@ There are two complementary list types:
 2. **Published lists in Pages CMS:** open **Listas publicadas → New** and enter a title and description, then use the **Canciones de la lista** reference picker to select many songs. A song can appear in as many published lists as you want. Saving triggers GitHub Pages deployment; visitors can browse the published lists, which become available offline with the updated site. Published lists are read-only in the PWA and editable through Pages CMS.
 
 The sample published list **Cantos del camino** contains two original demonstration songs. To publish personal list changes to all devices, recreate the list in Pages CMS; they do not sync automatically.
+
+
+## Inline chords in Pages CMS (ChordPro-style)
+
+No separate chord editor is required. Open the song with **Editar** → Pages CMS → **Letra** → **Source**.
+
+Insert square-bracket tokens *immediately before the character* where the chord should sound:
+
+
+
+ ```text
+[Am]Cada paso me [G]lleva
+hacia el [F]sol.
+
+Ca[C]mino hacia vos.
+[*Suave]Dejo salir mi voz.
+```
+
+- Chords may be attached to **any letter or space**, including inside words (`Ca[C]mino`).
+- Standard chord forms such as `[Am]`, `[F#m7]`, `[Bb/D]`, `[Dsus4]` and `[Cmaj7]` are supported.
+- A custom performance note can be written `[*Palmas]` or `[*Suave]`; it is displayed as a differently colored floating label.
+- Ordinary text in square brackets (for example `[Verso 1]`) is left alone unless it resembles chord notation.
+- In Cantario, use the **Letra / Letra + acordes** toggle. Its preference is remembered on the device, and both modes work offline.
+- Existing songs without chords continue to render as before. Search indexes ignore chord tokens, so words broken by chords remain searchable.
+
+**Editing precaution:** Stay in Pages CMS **Source** mode when entering/saving chord markers. Switching to its rich-text visual mode may normalize the Markdown. We have not guaranteed that an Editor → Source round trip preserves chord tokens; verify a test song before using both modes on chord-annotated lyrics.
+
+**Current limitation:** This first release displays the chord labels above their exact text anchors but does not provide drag-and-drop editing or transposition. Closely spaced labels can overlap visually. Uploaded audio and personal lists are unchanged.

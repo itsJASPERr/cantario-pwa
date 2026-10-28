@@ -159,3 +159,27 @@
   .song-card-actions{gap:2px}
   .song-card-actions .song-edit-link,.song-card-actions .song-list-button,.song-card-actions .favorite-button{width:32px}
 }
+
+
+/* ChordPro-style labels are placed at zero-width character anchors.
+   They do not change the source lyrics or the position of any character. */
+.chord-view-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 17px;flex-wrap:wrap}
+.chord-view-label{font-size:12px;color:var(--muted)}
+.chord-view-options{display:inline-flex;align-items:center;gap:2px;padding:4px;background:#e9e6da;border:1px solid var(--border);border-radius:999px}
+.chord-view-options button{border:0;border-radius:999px;background:transparent;color:var(--muted);padding:9px 14px;min-height:38px;font-size:12px;font-weight:700}
+.chord-view-options button.is-active{background:var(--forest);color:var(--cream);box-shadow:0 2px 6px rgba(23,41,30,.12)}
+.chord-view-options button:hover:not(.is-active){background:rgba(255,255,255,.7)}
+/* Only the label is hidden in lyrics-only mode. No bracket tokens enter the page. */
+.lyrics .chord-anchor{display:none}
+.lyrics.show-chords .chord-anchor{display:inline-block;position:relative;width:0;height:0;vertical-align:baseline;line-height:0}
+.lyrics.show-chords .chord-chip{
+  position:absolute;left:0;bottom:0.95em;display:inline-flex;align-items:center;
+  white-space:nowrap;max-width:unset;padding:0.34em 0.55em;
+  background:#e5ebdc;color:#2d533a;border:1px solid #bed0b6;
+  border-radius:6px;font-family:'DM Sans',system-ui,sans-serif;
+  font-size:clamp(10px,0.64em,14px);font-weight:700;letter-spacing:0;
+  line-height:1.15;user-select:text;z-index:1;box-shadow:0 2px 3px rgba(25,50,35,.06)
+}
+.lyrics.show-chords .chord-anchor[data-kind="cue"] .chord-chip{background:#efe5cd;color:#8e653b;border-color:#dec9a0;font-style:italic}
+.lyrics.show-chords p,.lyrics.show-chords li{line-height:2.65}
+@media(max-width:680px){.chord-view-toolbar{gap:8px}.chord-view-label{font-size:11px}.chord-view-options button{padding:8px 11px}}

@@ -8,7 +8,8 @@
     "dev": "npm run icons && astro dev",
     "build": "npm run icons && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test": "node --test tests/chords.test.mjs"
   },
   "dependencies": {
     "astro": "^5.16.0",

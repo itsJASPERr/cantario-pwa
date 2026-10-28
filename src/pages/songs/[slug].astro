@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { hasChordTokens } from '../../lib/rehype-chords.mjs';
 export async function getStaticPaths() {
   const songs = await getCollection('songs');
   return songs.map(song => ({params:{slug:song.id},props:{song}}));
@@ -8,6 +9,7 @@ export async function getStaticPaths() {
 interface Props { song: CollectionEntry<'songs'> }
 const {song} = Astro.props;
 const {Content} = await render(song);
+const hasChords = hasChordTokens(song.body || '');
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const cmsSongs = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main/collection/songs';
 const editSongUrl = cmsSongs + '/edit/' + encodeURIComponent('src/content/songs/' + song.id + '.md');
@@ -78,8 +80,15 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         <button type="button" id="font-up" aria-label="Aumentar tamaño de letra">A+</button>
       </div>
     </section>
+    {hasChords && <div class="chord-view-toolbar">
+      <span class="chord-view-label">Ver canción</span>
+      <div class="chord-view-options" role="group" aria-label="Mostrar u ocultar acordes">
+        <button type="button" id="chord-view-lyrics" aria-pressed="false">Letra</button>
+        <button type="button" id="chord-view-chords" class="is-active" aria-pressed="true">Letra + acordes</button>
+      </div>
+    </div>}
     <article class="lyrics-paper" aria-label="Letra de la canción">
-      <div class="lyrics" id="lyrics"><Content /></div>
+      <div class={'lyrics' + (hasChords ? ' show-chords' : '')} id="lyrics"><Content /></div>
       <div class="endmark" aria-hidden="true">✳</div>
     </article>
     <div class="reader-bottom"><a href={base}>← Volver al cancionero</a></div>
@@ -92,6 +101,26 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
     const lyrics = document.getElementById('lyrics');
     const KEY = 'cantario:favorites:v1';
     const SIZE_KEY = 'cantario:font-size:v1';
+    const CHORDS_KEY = 'cantario:chords-visible:v1';
+    const lyricsMode = document.getElementById('chord-view-lyrics');
+    const chordsMode = document.getElementById('chord-view-chords');
+    function setChordVisibility(show) {
+      lyrics.classList.toggle('show-chords', show);
+      if (lyricsMode && chordsMode) {
+        lyricsMode.classList.toggle('is-active', !show);
+        lyricsMode.setAttribute('aria-pressed', String(!show));
+        chordsMode.classList.toggle('is-active', show);
+        chordsMode.setAttribute('aria-pressed', String(show));
+      }
+      try { localStorage.setItem(CHORDS_KEY, show ? 'yes' : 'no'); } catch {}
+    }
+    if (lyricsMode && chordsMode) {
+      let saved = null;
+      try { saved = localStorage.getItem(CHORDS_KEY); } catch {}
+      setChordVisibility(saved !== 'no');
+      lyricsMode.addEventListener('click', () => setChordVisibility(false));
+      chordsMode.addEventListener('click', () => setChordVisibility(true));
+    }
     let favorites;
     try { favorites = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { favorites = new Set(); }
     const syncFavorite = () => {

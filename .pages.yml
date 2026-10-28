@@ -67,7 +67,7 @@ content:
         label: Letra
         type: rich-text
         required: true
-        description: Una línea por verso y una línea vacía entre estrofas. Usa Source para editar el Markdown.
+        description: 'En Source escribí [Am] justo antes de la letra o espacio donde empieza el acorde (ej. Ca[G]mino). Para indicaciones usá [*Suave]. Separá estrofas con una línea vacía. Guardá en Source para no alterar las marcas.'
         options:
           format: markdown
           switcher: true

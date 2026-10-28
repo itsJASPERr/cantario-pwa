@@ -1,10 +1,12 @@
 import { defineConfig } from 'astro/config';
 import AstroPWA from '@vite-pwa/astro';
+import rehypeChords from './src/lib/rehype-chords.mjs';
 const base = '/cantario-pwa/';
 export default defineConfig({
   site: 'https://itsjasperr.github.io',
   base: '/cantario-pwa',
   trailingSlash: 'always',
+  markdown: { rehypePlugins: [rehypeChords] },
   integrations: [AstroPWA({
     base,
     scope: base,
