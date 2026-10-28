@@ -6,6 +6,7 @@ tags:
   - medicina
 duration_mmss: 04:52
 ---
+[00:05][Em][intro]
 [00:26.24][Em]Ama, vive, ríe, sueña, danza  
 [00:35.81][Em]Ama, vive, ríe, sueña, danza  
 [00:45.36][C]Canta, canta para abrir el [G]mundo  
