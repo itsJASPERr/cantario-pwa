@@ -5,7 +5,7 @@ language: es
 tags:
   - medicina
 ---
-Al Yage yo lo llevo en la sangre
+[Am]Al Yage yo lo llevo en la sangre
 Guardadito aqui en mi corazon
 Amigo consejero que has bajado
 El cielo por mi padre creador
