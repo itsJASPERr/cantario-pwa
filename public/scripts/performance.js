@@ -434,6 +434,8 @@ import {
       ? 'BPM de referencia en CMS. Ajustá el ritmo en vivo con − / +.'
       : tempoSource === 'tap'
       ? 'Estimado por tus pulsaciones. Podés afinarlo con − / +.'
+      : tempoSource === 'manual'
+      ? 'BPM elegido manualmente; sin tempo de referencia en CMS, el desplazamiento es orientativo.'
       : 'BPM guía sin referencia musical confirmada. Marcá el pulso para calibrarlo.';
     speedDown.disabled=changeBpm(currentBpm,-BPM_STEP,referenceBpm)===currentBpm;
     speedUp.disabled=changeBpm(currentBpm,BPM_STEP,referenceBpm)===currentBpm;
@@ -447,6 +449,9 @@ import {
     if (cmsBpm) {
       referenceBpm=cmsBpm;
       tempoSource='cms';
+      // When BPM is first authored in CMS, disregard an older provisional
+      // guide choice rather than accidentally changing the song's pace.
+      if (saved?.base !== cmsBpm) saved=null;
     } else if (saved?.source === 'tap' && normalizeBpm(saved.base)) {
       referenceBpm=saved.base;
       tempoSource='tap';
