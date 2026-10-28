@@ -1,6 +1,7 @@
 import {
   normalizeDuration, normalizeSpeed, maxScrollDistance, scrollRate,
-  advanceScroll, progressPercent, MIN_SPEED, MAX_SPEED, SPEED_STEP
+  advanceScroll, progressPercent, MIN_SPEED, MAX_SPEED, SPEED_STEP,
+  makeTimedTrack, timedPositionAt, timedClockAtPosition
 } from './performance-core.mjs';
 
 // No third-party dependencies or network calls: the entire performance reader
@@ -32,6 +33,12 @@ import {
   const settingsToggle = document.getElementById('performance-settings-toggle');
   const settingsDrawer = document.getElementById('performance-settings');
   const settingsClose = document.getElementById('performance-settings-close');
+  const modeSelect = document.getElementById('performance-mode');
+  const modeWrap = document.getElementById('performance-mode-wrap');
+  const timedDescription = document.getElementById('performance-timed-description');
+  const continuousDuration = document.getElementById('performance-continuous-duration');
+  const canonicalDuration = Number(dialog.dataset.durationSeconds);
+  const timingValid = dialog.dataset.timingValid === 'yes';
   const mobileControls = window.matchMedia('(max-width: 700px), (max-height: 500px) and (max-width: 950px)');
 
   const KEY = {
@@ -40,7 +47,8 @@ import {
     countdown:'cantario:performance:countdown:v1',
     wake:'cantario:performance:wake:v1',
     size:'cantario:font-size:v1',
-    chords:'cantario:chords-visible:v1'
+    chords:'cantario:chords-visible:v1',
+    mode:'cantario:performance:mode:v1'
   };
 
   const read = (key, fallback) => {
@@ -73,6 +81,10 @@ import {
   let settingsOpen = false;
   let settingsTimer = null;
   let countdownRemaining = 0;
+  let mode = 'continuous';
+  let timedTrack = null;
+  let songClock = 0;
+  let manualPositionChanged = false;
 
   function isMobileControls() {
     return mobileControls.matches;
@@ -135,17 +147,50 @@ import {
       Math.max(0, endPosition - viewportHeight * 0.18));
     return Math.min(possible, Math.max(desired, minimum));
   }
+  function clockText(seconds) {
+    const n = Math.floor(Math.max(0,seconds));
+    return String(Math.floor(n / 60)).padStart(2, '0') + ':' +
+      String(n % 60).padStart(2, '0');
+  }
+  function rebuildTimedTrack() {
+    if (!timingValid || !dialog.open) { timedTrack = null; return; }
+    const total = physicalDistance();
+    const viewport = scroll.clientHeight;
+    const bounds = scroll.getBoundingClientRect();
+    const markers = [...lyrics.querySelectorAll('.lyric-line[data-start-ms]')];
+    const cues = markers.map(element => ({
+      time:Number(element.dataset.startMs) / 1000,
+      y:element.getBoundingClientRect().top - bounds.top + scroll.scrollTop - viewport*0.34
+    }));
+    timedTrack = makeTimedTrack(cues, canonicalDuration, total, 2);
+  }
+  function syncModeDisplay() {
+    const available = Boolean(timedTrack);
+    if (modeSelect) modeSelect.value = mode === 'timed' && available ? 'timed' : 'continuous';
+    if (modeWrap) modeWrap.hidden = !available;
+    if (timedDescription) timedDescription.hidden = !(available && mode === 'timed');
+    if (continuousDuration) continuousDuration.hidden = available && mode === 'timed';
+    dialog.dataset.scrollMode = mode;
+  }
+  function setMode(requested, persist = true) {
+    const newMode = requested === 'timed' && timedTrack ? 'timed' : 'continuous';
+    if (mode === newMode) {syncModeDisplay();return;}
+    if (newMode === 'timed') songClock = timedClockAtPosition(timedTrack,scroll.scrollTop);
+    else virtualPosition = scroll.scrollTop;
+    mode = newMode;
+    if (persist) save(KEY.mode,mode);
+    syncModeDisplay();
+    updateProgress();
+  }
   function updateProgress() {
     const distance = physicalDistance();
     const value = distance ? progressPercent(scroll.scrollTop, distance) : 100;
-    const time = Math.floor(elapsedSeconds);
-    const clock = String(Math.floor(time / 60)).padStart(2, '0') + ':' +
-      String(time % 60).padStart(2, '0');
     progress.textContent = state === 'countdown'
       ? countdownRemaining + '…'
-      : distance ? value + '% · ' + clock : 'Todo visible';
+      : mode === 'timed' && timedTrack
+      ? clockText(songClock) + ' / ' + clockText(timedTrack.duration)
+      : distance ? value + '% · ' + clockText(elapsedSeconds) : 'Todo visible';
     noScroll.hidden = distance > 0;
-    // Only a genuinely non-scrollable (empty) page disables Start.
     play.disabled = distance < 1 && state !== 'playing' && state !== 'countdown';
   }
   function syncPlay() {
@@ -191,12 +236,20 @@ import {
     lastFrame = timestamp;
     const distance = physicalDistance();
     if (distance < 1) { pause('Todo el texto cabe en pantalla'); return; }
-    const rate = scrollRate(distance, durationSeconds, multiplier);
     elapsedSeconds += deltaSeconds;
-    virtualPosition = advanceScroll(virtualPosition, distance, deltaSeconds, rate);
-    scroll.scrollTop = virtualPosition;
-    updateProgress();
-    if (virtualPosition >= distance - 0.75) { finished(); return; }
+    if (mode === 'timed' && timedTrack) {
+      songClock = Math.min(timedTrack.duration, songClock + deltaSeconds * multiplier);
+      virtualPosition = timedPositionAt(timedTrack, songClock);
+      scroll.scrollTop = virtualPosition;
+      updateProgress();
+      if (songClock >= timedTrack.duration - 0.001) { finished(); return; }
+    } else {
+      const rate = scrollRate(distance, durationSeconds, multiplier);
+      virtualPosition = advanceScroll(virtualPosition, distance, deltaSeconds, rate);
+      scroll.scrollTop = virtualPosition;
+      updateProgress();
+      if (virtualPosition >= distance - 0.75) { finished(); return; }
+    }
     frame = requestAnimationFrame(tick);
   }
   function beginPlaying() {
@@ -208,8 +261,12 @@ import {
     }
     state = 'playing';
     virtualPosition = Math.min(physicalDistance(), scroll.scrollTop);
+    if (mode === 'timed' && timedTrack && manualPositionChanged) {
+      songClock = timedClockAtPosition(timedTrack, scroll.scrollTop);
+    }
+    manualPositionChanged = false;
     lastFrame = null;
-    setStatus('Desplazamiento automático');
+    setStatus(mode === 'timed' ? 'Sincronizado · referencia en vivo' : 'Desplazamiento continuo');
     syncPlay();
     frame = requestAnimationFrame(tick);
   }
@@ -240,6 +297,8 @@ import {
       scroll.scrollTop = 0;
       virtualPosition = 0;
       elapsedSeconds = 0;
+      songClock = 0;
+      manualPositionChanged = false;
       state = 'ready';
     }
     if (state === 'ready' && countdownEnabled) beginCountdown();
@@ -262,6 +321,7 @@ import {
     lyrics.style.setProperty('--lyric-size', fontSize + 'px');
     save(KEY.size, fontSize);
     window.dispatchEvent(new CustomEvent('cantario:performance:font', {detail:fontSize}));
+    rebuildTimedTrack();
     updateProgress();
   }
   function setChords(value) {
@@ -271,6 +331,7 @@ import {
     chords.textContent = chordsVisible ? '♫ Acordes: sí' : '♫ Acordes: no';
     save(KEY.chords, chordsVisible ? 'yes' : 'no');
     window.dispatchEvent(new CustomEvent('cantario:performance:chords', {detail:chordsVisible}));
+    rebuildTimedTrack();
     updateProgress();
   }
   function setCountdown(value) {
@@ -359,6 +420,8 @@ import {
     scroll.scrollTop = 0;
     virtualPosition = 0;
     elapsedSeconds = 0;
+    songClock = 0;
+    manualPositionChanged = false;
     countdownRemaining = 0;
     // Sync with Cantario's existing reader preference keys.
     fontSize = Math.min(32, Math.max(12, Number(read(KEY.size,20)) || 20));
@@ -369,6 +432,9 @@ import {
     duration.value = String(durationSeconds);
     setMultiplier(read(KEY.speed,1));
     setCountdown(read(KEY.countdown,'yes') !== 'no');
+    rebuildTimedTrack();
+    mode = timingValid && timedTrack && read(KEY.mode,'timed') !== 'continuous' ? 'timed' : 'continuous';
+    syncModeDisplay();
     wakeEnabled = read(KEY.wake,'yes') !== 'no';
     setControlsHidden(false);
     setSettingsOpen(false);
@@ -384,7 +450,7 @@ import {
     resetReader();
     void acquireWakeLock();
     // The modal needs one layout pass before its actual scroll height is known.
-    requestAnimationFrame(() => { updateProgress(); play.focus(); });
+    requestAnimationFrame(() => { rebuildTimedTrack(); syncModeDisplay(); updateProgress(); play.focus(); });
   }
   function leave() {
     if (dialog.open) dialog.close();
@@ -405,6 +471,7 @@ import {
   speedDown.addEventListener('click', () => setMultiplier(multiplier - SPEED_STEP));
   speedUp.addEventListener('click', () => setMultiplier(multiplier + SPEED_STEP));
   duration.addEventListener('change', () => setDuration(duration.value));
+  modeSelect?.addEventListener('change', () => setMode(modeSelect.value));
   fontDown.addEventListener('click', () => setFont(fontSize - 2));
   fontUp.addEventListener('click', () => setFont(fontSize + 2));
   chords?.addEventListener('click', () => setChords(!chordsVisible));
@@ -445,6 +512,7 @@ import {
   scroll.addEventListener('wheel', () => {
     if (state === 'playing') pause('En pausa · desplazamiento manual');
     // Browser updates scrollTop after the wheel event; resync on next frame.
+    manualPositionChanged = true;
     requestAnimationFrame(() => { if (state !== 'playing') virtualPosition = scroll.scrollTop; });
   }, {passive:true});
   scroll.addEventListener('touchstart', event => {
@@ -458,6 +526,7 @@ import {
     touchMoved = true;
     if (state === 'playing') pause('En pausa · desplazamiento manual');
     virtualPosition = scroll.scrollTop;
+    manualPositionChanged = true;
   }, {passive:true});
   scroll.addEventListener('touchend', () => { touchStartY = null; }, {passive:true});
 
@@ -476,6 +545,7 @@ import {
       onPlay();
     } else if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End'].includes(event.key)) {
       if (state === 'playing') pause('En pausa · desplazamiento manual');
+      manualPositionChanged = true;
       requestAnimationFrame(() => { if (state !== 'playing') virtualPosition = scroll.scrollTop; });
     }
   });
@@ -491,6 +561,8 @@ import {
   window.addEventListener('resize', () => {
     if (!dialog.open) return;
     syncSettingsLayout();
+    rebuildTimedTrack();
+    syncModeDisplay();
     updateProgress();
     if (state === 'playing' && physicalDistance() === 0) pause('La canción cabe en pantalla');
   });
