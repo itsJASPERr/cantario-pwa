@@ -1,4 +1,4 @@
-import {normalizeBpm,changeBpm,tempoMultiplier,addTempoTap,visualBeat,DEFAULT_GUIDE_BPM,BPM_STEP} from './tempo-core.mjs';
+import {normalizeBpm,changeBpm,tempoMultiplier,addTempoTap,beatViewState,DEFAULT_GUIDE_BPM,BPM_STEP} from './tempo-core.mjs';
 import {
   normalizeDuration, normalizeSpeed, maxScrollDistance, scrollRate,
   advanceScroll, progressPercent, MIN_SPEED, MAX_SPEED, SPEED_STEP,
@@ -27,6 +27,9 @@ import {
   const bpmInput = document.getElementById('performance-bpm-input');
   const tapStatus = document.getElementById('performance-tap-status');
   const beatMeter = document.getElementById('performance-beat-meter');
+  const beatHudBpm = document.getElementById('performance-beat-hud-bpm');
+  const beatHudName = document.getElementById('performance-beat-hud-name');
+  const beatVisibility = document.getElementById('performance-beat-visibility');
   const beatDots = [...(beatMeter?.querySelectorAll('[data-beat]') || [])];
   const duration = document.getElementById('performance-duration');
   const speedDown = document.getElementById('performance-slower');
@@ -63,7 +66,8 @@ import {
     wake:'cantario:performance:wake:v1',
     size:'cantario:font-size:v1',
     chords:'cantario:chords-visible:v1',
-    mode:'cantario:performance:mode:v1'
+    mode:'cantario:performance:mode:v1',
+    beatVisible:'cantario:performance:beat-visible:v1'
   };
 
   const read = (key, fallback) => {
@@ -109,6 +113,7 @@ import {
   let beatAnchor = 0;
   let countInBeat = 1;
   let beatCountIn = false;
+  let beatVisible = read(KEY.beatVisible,'yes') !== 'no';
   let lastCueSignature = '';
 
   function isMobileControls() {
@@ -265,15 +270,39 @@ import {
     lastCueSignature = signature;
   }
   function updateBeatMeter() {
-    const bpm = currentBpm;
-    if (!beatMeter || !bpm) return;
-    const currentClock = mode === 'timed' && timedTrack ? songClock : elapsedSeconds;
-    const beat = state === 'countdown' && beatCountIn
-      ? countInBeat
-      : visualBeat(currentClock,mode === 'timed' && timedTrack ? referenceBpm : bpm,beatAnchor)?.beat || 1;
-    beatMeter.dataset.activeBeat = String(beat);
-    beatMeter.classList.toggle('is-running',state === 'playing' || (state === 'countdown' && beatCountIn));
-    for(const dot of beatDots) dot.classList.toggle('is-active',Number(dot.dataset.beat) === beat);
+    if (!beatMeter) return;
+    const timed = mode === 'timed' && Boolean(timedTrack);
+    const view=beatViewState({
+      state,
+      clock:timed ? songClock : elapsedSeconds,
+      bpm:timed ? referenceBpm : currentBpm,
+      beatAnchor,
+      beatCountIn,
+      countInBeat
+    });
+    beatMeter.dataset.activeBeat=view.beat === null ? '' : String(view.beat);
+    beatMeter.classList.toggle('is-running',view.running);
+    beatMeter.classList.toggle('is-paused',view.paused);
+    beatMeter.setAttribute('aria-label',view.beat === null
+      ? 'Cuatro pulsos: en espera'
+      : 'Pulso '+view.beat+' de 4 · '+(view.paused?'en pausa':view.counting?'cuenta de entrada':'en curso'));
+    for(const dot of beatDots) dot.classList.toggle('is-active',view.beat !== null && Number(dot.dataset.beat) === view.beat);
+  }
+  function setBeatVisibility(visible,persist=true) {
+    beatVisible=Boolean(visible);
+    dialog.classList.toggle('beats-hidden',!beatVisible);
+    if (beatVisibility) {
+      beatVisibility.setAttribute('aria-pressed',String(beatVisible));
+      beatVisibility.textContent=beatVisible?'▦ Pulso visual: sí':'▦ Pulso visual: no';
+    }
+    if (persist) save(KEY.beatVisible,beatVisible);
+    // The HUD row is in the stage grid; remeasure the timed scroll range
+    // after toggling, preserving the current musical clock.
+    requestAnimationFrame(() => {
+      if (!dialog.open) return;
+      rebuildTimedTrack();
+      updateProgress();
+    });
   }
   function updateProgress() {
     updateBeatMeter();
@@ -429,6 +458,9 @@ import {
     speedLabel.textContent=label;
     if (bpmMini) bpmMini.textContent=label;
     if (tempoValue) tempoValue.textContent=label;
+    if (beatHudBpm) beatHudBpm.textContent=label;
+    if (beatHudName) beatHudName.textContent=tempoSource === 'cms' ? 'PULSO'
+      : tempoSource === 'tap' ? 'PULSO ESTIMADO' : 'PULSO GUÍA';
     if (bpmInput) bpmInput.value=String(currentBpm);
     if (tempoHint) tempoHint.textContent=tempoSource === 'cms'
       ? 'BPM de referencia en CMS. Ajustá el ritmo en vivo con − / +.'
@@ -598,6 +630,7 @@ import {
     if (activeLine) activeLine.classList.remove('is-current');
     activeLine = null;
     countdownRemaining = 0;
+    setBeatVisibility(read(KEY.beatVisible,'yes') !== 'no',false);
     // Sync with Cantario's existing reader preference keys.
     fontSize = Math.min(32, Math.max(12, Number(read(KEY.size,20)) || 20));
     chordsVisible = read(KEY.chords,'yes') !== 'no';
@@ -652,6 +685,7 @@ import {
   speedDown.addEventListener('click', () => changeTempo(-BPM_STEP));
   speedUp.addEventListener('click', () => changeTempo(BPM_STEP));
   tapButton?.addEventListener('click',tapTempo);
+  beatVisibility?.addEventListener('click',()=>setBeatVisibility(!beatVisible));
   bpmInput?.addEventListener('change', () => {
     const value=normalizeBpm(bpmInput.value);
     if (value === null) {

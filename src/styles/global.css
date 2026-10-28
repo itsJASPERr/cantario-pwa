@@ -577,3 +577,91 @@
 .offline-readiness[data-state="ready"] .offline-ready-dot{background:#4e9868}
 .offline-readiness[data-state="error"] .offline-ready-dot{background:#c88d52}
 .offline-readiness-song{margin:0 0 16px}
+
+
+/* v0.4.0c — Beat brackets HUD, visible in a performer's lyric sightline.
+   The cue occupies a fixed slot: changing INTRO/INTERLUDIO does not move lyrics. */
+.performance-dialog .performance-shell{grid-template-rows:auto auto minmax(0,1fr) auto}
+.performance-beat-hud{
+  display:grid;grid-template-rows:39px 28px;align-items:center;
+  gap:1px;padding:3px max(14px,env(safe-area-inset-right)) 3px max(14px,env(safe-area-inset-left));
+  background:#1b3326;border-bottom:1px solid #405b45;
+  min-height:74px;color:#eff2e8;
+}
+.performance-beat-hud-row{
+  display:flex;align-items:center;justify-content:center;gap:16px;min-width:0;
+}
+.performance-beat-hud-name{
+  flex:1;min-width:0;text-align:right;color:#b6c9b2;
+  letter-spacing:.09em;font-size:10px;font-weight:700;
+}
+.performance-dialog .performance-beat-hud .performance-beat-meter{gap:7px;display:flex;flex-shrink:0}
+.performance-dialog .performance-beat-hud .performance-beat{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:35px;height:35px;border-radius:7px;border:1px solid #66856e;
+  background:#2a4836;color:#dae6d6;font:700 16px 'DM Sans',sans-serif;
+  transform:none;transition:background .08s,color .08s,border-color .08s;
+}
+.performance-dialog .performance-beat-hud .performance-beat[data-beat="1"]{border-color:#b6a874}
+.performance-dialog .performance-beat-hud .performance-beat.is-active{
+  color:#1b3824;background:#e8d39c;border-color:#f5e4b6;
+  box-shadow:0 0 0 2px rgba(235,214,166,.25);
+}
+.performance-dialog .performance-beat-hud .performance-beat-meter.is-paused .performance-beat.is-active{
+  background:#aec4aa;border-color:#d6dfcd;
+}
+.performance-beat-hud-bpm{
+  flex:1;min-width:0;text-align:left;color:#f0dca8;
+  font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.performance-cue-slot{
+  min-height:28px;display:flex;align-items:center;justify-content:center;
+}
+.performance-dialog .performance-beat-hud .performance-live-cue{
+  position:static;inset:auto;top:auto;left:auto;right:auto;
+  transform:none;pointer-events:none;display:flex;flex-wrap:nowrap;
+  justify-content:center;align-items:center;gap:7px;padding:3px 11px;
+  min-height:25px;height:25px;width:auto;min-width:0;
+  max-width:100%;border-radius:7px;box-shadow:none;
+}
+.performance-dialog .performance-beat-hud .performance-live-cue[hidden]{display:none!important}
+.performance-dialog .performance-beat-hud .performance-cue-label{font-size:11px;white-space:nowrap}
+.performance-dialog .performance-beat-hud .performance-cue-value{font-size:18px}
+.performance-dialog .performance-beat-hud .performance-cue-detail{display:none}
+.performance-dialog .performance-beat-hud .performance-live-cue[data-kind="prepare"] .performance-cue-value{font-size:20px}
+.performance-dialog .performance-beat-hud .performance-live-cue[data-kind="now"] .performance-cue-label{font-size:15px}
+.performance-dialog.beats-hidden .performance-beat-hud{
+  grid-template-rows:28px;min-height:34px;padding-top:3px;padding-bottom:3px;
+}
+.performance-dialog.beats-hidden .performance-beat-hud-row{display:none}
+@media(max-width:700px),(max-height:500px) and (max-width:950px){
+  .performance-dialog .performance-beat-hud{
+    min-height:70px;grid-template-rows:37px 27px;padding:3px 8px;
+  }
+  .performance-dialog .performance-beat-hud-row{gap:7px}
+  .performance-dialog .performance-beat-hud .performance-beat-meter{gap:5px}
+  .performance-dialog .performance-beat-hud .performance-beat{
+    width:34px;height:34px;font-size:16px;border-radius:6px;
+  }
+  .performance-beat-hud-name{font-size:9px;letter-spacing:.03em}
+  .performance-beat-hud-bpm{font-size:11px}
+  .performance-dialog.beats-hidden .performance-beat-hud{min-height:34px;grid-template-rows:28px}
+}
+@media(max-width:370px){
+  .performance-dialog .performance-beat-hud .performance-beat{
+    width:32px;height:32px;font-size:15px;
+  }
+  .performance-dialog .performance-beat-hud .performance-beat-meter{gap:3px}
+  .performance-beat-hud-row{gap:5px}
+}
+@media(max-height:500px) and (max-width:950px){
+  .performance-dialog .performance-beat-hud{
+    min-height:47px;grid-template-rows:29px 14px;padding:1px 7px;
+  }
+  .performance-dialog .performance-beat-hud .performance-beat{height:27px;width:27px;font-size:13px}
+  .performance-dialog .performance-beat-hud .performance-beat-meter{gap:4px}
+  .performance-dialog .performance-beat-hud .performance-live-cue{height:16px;min-height:16px;padding:0 8px}
+  .performance-dialog .performance-beat-hud .performance-cue-label{font-size:10px}
+  .performance-dialog .performance-beat-hud .performance-cue-value{font-size:12px}
+  .performance-dialog.beats-hidden .performance-beat-hud{min-height:20px;grid-template-rows:18px}
+}

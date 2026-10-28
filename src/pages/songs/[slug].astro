@@ -192,18 +192,27 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         <strong id="performance-heading">{song.data.title}</strong>
         <span>{song.data.artist}</span>
       </div>
-      <div class="performance-beat-meter" id="performance-beat-meter" role="img" aria-label="Pulso visual de cuatro tiempos">
-        {[1,2,3,4].map(beat => <span class="performance-beat" data-beat={beat} aria-hidden="true">{beat}</span>)}
-      </div>
       <button type="button" class="performance-toggle-controls" id="performance-toggle-controls" aria-pressed="true" aria-label="Mostrar u ocultar los controles">Ocultar controles</button>
     </header>
 
-    <!-- Floating overlay: does not resize or move the lyrics as cues change. -->
-    <div class="performance-live-cue" id="performance-live-cue" role="group"
-      aria-label="Indicación de entrada musical" aria-live="off" hidden>
-      <span class="performance-cue-label" id="performance-cue-label"></span>
-      <strong class="performance-cue-value" id="performance-cue-value"></strong>
-      <span class="performance-cue-detail" id="performance-cue-detail"></span>
+    <!-- One stable, compact stage HUD keeps pulse brackets and musical cues
+         in the performer's sightline without covering the scrolling lyrics. -->
+    <div class="performance-beat-hud" id="performance-beat-hud" aria-label="Pulso y entradas musicales">
+      <div class="performance-beat-hud-row">
+        <span class="performance-beat-hud-name" id="performance-beat-hud-name">PULSO GUÍA</span>
+        <div class="performance-beat-meter" id="performance-beat-meter" role="img" aria-label="Cuatro pulsos: en espera">
+          {[1,2,3,4].map(beat => <span class="performance-beat" data-beat={beat} aria-hidden="true">{beat}</span>)}
+        </div>
+        <strong class="performance-beat-hud-bpm" id="performance-beat-hud-bpm">~80 BPM</strong>
+      </div>
+      <div class="performance-cue-slot">
+        <div class="performance-live-cue" id="performance-live-cue" role="group"
+          aria-label="Indicación de entrada musical" aria-live="off" hidden>
+          <span class="performance-cue-label" id="performance-cue-label"></span>
+          <strong class="performance-cue-value" id="performance-cue-value"></strong>
+          <span class="performance-cue-detail" id="performance-cue-detail"></span>
+        </div>
+      </div>
     </div>
 
     <section class="performance-scroll" id="performance-scroll" tabindex="0" aria-label="Letra de la canción en modo escenario. Deslizá para pausar el desplazamiento automático.">
@@ -295,6 +304,7 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         <small id="performance-tap-status" role="status" aria-live="polite">Tocá 4 veces al ritmo de la canción.</small>
       </div>
       <div class="performance-extras">
+        <button type="button" id="performance-beat-visibility" aria-pressed="true" aria-label="Mostrar u ocultar pulsos visuales">▦ Pulso visual: sí</button>
         <div class="performance-font-row" role="group" aria-label="Tamaño de letra">
           <button type="button" id="performance-font-down" aria-label="Reducir tamaño de letra">A−</button>
           <button type="button" id="performance-font-up" aria-label="Aumentar tamaño de letra">A+</button>

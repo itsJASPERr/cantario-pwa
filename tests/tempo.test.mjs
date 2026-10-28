@@ -37,3 +37,26 @@ test('four beat visualization advances at exactly selected BPM',()=>{
  assert.equal(visualBeat(3,80).beat,1);
  assert.equal(visualBeat(0,null),null);
 });
+
+
+import {beatViewState} from '../public/scripts/tempo-core.mjs';
+test('bracket view highlights the selected beat and freezes when paused',()=>{
+ const live=beatViewState({state:'playing',clock:1.5,bpm:80});
+ assert.deepEqual(live,{beat:3,running:true,paused:false,counting:false});
+ const paused=beatViewState({state:'paused',clock:1.5,bpm:80});
+ assert.deepEqual(paused,{beat:3,running:false,paused:true,counting:false});
+});
+test('readiness, finished and generic countdown never show a false beat',()=>{
+ for(const state of ['ready','finished','countdown']){
+   const result=beatViewState({state,bpm:80});
+   assert.equal(result.beat,null);
+   assert.equal(result.running,false);
+ }
+});
+test('four count-in brackets are driven by the real selected count-in beat',()=>{
+ for(let n=1;n<=4;n++){
+  const result=beatViewState({state:'countdown',beatCountIn:true,countInBeat:n});
+  assert.equal(result.beat,n);
+  assert.equal(result.counting,true);
+ }
+});

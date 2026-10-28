@@ -44,3 +44,24 @@ export function visualBeat(clockSeconds, bpm, beatAnchorSeconds=0) {
   const beats=Math.max(0,(clockSeconds-beatAnchorSeconds)*selected/60);
   return {beat:Math.floor(beats)%4+1,phase:beats%1};
 }
+
+
+/**
+ * Pure beat display state. Ready/finished and a generic 3-second countdown
+ * intentionally do not show a false musical beat.
+ */
+export function beatViewState({
+  state='ready',clock=0,bpm=null,beatAnchor=0,beatCountIn=false,countInBeat=1
+}={}) {
+  if(state === 'countdown' && beatCountIn) {
+    return {beat:Math.max(1,Math.min(4,Math.floor(Number(countInBeat)||1))),
+      running:true,paused:false,counting:true};
+  }
+  if(state !== 'playing' && state !== 'paused') {
+    return {beat:null,running:false,paused:false,counting:false};
+  }
+  const pulse=visualBeat(clock,bpm,beatAnchor);
+  if(!pulse) return {beat:null,running:false,paused:false,counting:false};
+  return {beat:pulse.beat,running:state === 'playing',
+    paused:state === 'paused',counting:false};
+}
