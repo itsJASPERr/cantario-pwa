@@ -23,9 +23,9 @@ export function installGuide(platform) {
     steps: [
       'Abrí Cantario en Safari si estás usando el navegador de otra aplicación.',
       'Tocá Compartir (cuadrado con una flecha hacia arriba).',
-      'Elegí “Agregar a pantalla de inicio” y después “Agregar”.'
+      'Elegí “Agregar a pantalla de inicio”. Si aparece “Abrir como app web”, dejalo activado. Después tocá “Agregar”.'
     ],
-    note: 'Después, abrí Cantario desde su ícono en la pantalla de inicio. Las canciones visitadas y los recursos guardados podrán usarse sin conexión.'
+    note: 'Importante: abrí el ícono de Cantario una vez CON internet y esperá a que indique “Lista para usar sin conexión”. Si abre en Safari con su barra de direcciones, eliminá ese acceso directo y volvé a agregarlo como app web.'
   };
   if (platform === 'android') return {
     title: 'Instalar Cantario en Android',

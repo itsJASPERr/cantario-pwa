@@ -1,0 +1,32 @@
+{
+  "name": "Cantario · Tu cancionero vivo",
+  "short_name": "Cantario",
+  "description": "Tu cancionero vivo. Canciones para llevar, cantar y compartir incluso sin internet.",
+  "lang": "es",
+  "id": "/cantario-pwa/",
+  "start_url": "/cantario-pwa/",
+  "scope": "/cantario-pwa/",
+  "display": "standalone",
+  "background_color": "#f6f2e8",
+  "theme_color": "#253d31",
+  "icons": [
+    {
+      "src": "/cantario-pwa/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/cantario-pwa/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/cantario-pwa/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

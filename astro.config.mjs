@@ -12,21 +12,15 @@ export default defineConfig({
     base,
     scope: base,
     registerType: 'autoUpdate',
-    injectRegister: 'auto',
+    // Explicitly registered from /scripts/pwa-bootstrap.js
+    injectRegister: false,
     includeAssets: ['icon.svg','icons/apple-touch-icon.png'],
-    manifest: {
-      name: 'Cantario · Tu cancionero vivo', short_name: 'Cantario',
-      description: 'Canciones para llevar, cantar y compartir.',
-      lang: 'es', id: base, start_url: base, scope: base,
-      display: 'standalone', background_color: '#f6f2e8', theme_color: '#253d31',
-      icons: [
-        {src:base+'icons/icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},
-        {src:base+'icons/icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'},
-        {src:base+'icons/maskable-512.png',sizes:'512x512',type:'image/png',purpose:'maskable'}
-      ]
-    },
+    // Ship a verified static manifest rather than an injected one.
+    manifest: false,
     workbox: {
       globPatterns: ['**/*.{html,css,js,mjs,json,png,svg,webmanifest,woff2}'],
+      navigateFallback: base + 'index.html',
+      navigateFallbackAllowlist: [/^\/cantario-pwa\//],
       cleanupOutdatedCaches: true, clientsClaim: true, skipWaiting: true
     }
   })]

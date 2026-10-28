@@ -199,3 +199,9 @@ When BPM is established via CMS, tapping or manual adjustment, the optional pre-
 Continuous mode, untimed songs, the existing visual INTRO / INTERLUDIO cues, manual scrolling, offline caching and the compact mobile control bar all remain supported.
 
 To choose a specific tempo quickly, type a BPM between **40 and 240** into **BPM elegido** in Modo Escenario settings. The effective speed remains safety-limited to 0.5×–2.5× the song's reference BPM; the input and −/+ controls stay synchronized. **Marcar pulso** remains available when you don't know the BPM.
+
+
+## Offline launch reliability on iOS (issue #9)
+Cantario now ships an explicit static Web App Manifest, linked on every page, and explicitly registers the scoped service worker. Its offline navigation fallback is the library homepage. CI checks that the published artifact contains the manifest, icons, registration script and offline start page.
+
+Both library and song reader display a cache-readiness status. "Lista para usar sin conexión" appears only after a cached app shell is found, not because the Home Screen shortcut exists. On iPhone, open the INSTALLED Cantario app while online, wait for the ready indicator, then try airplane mode. If an older shortcut launches ordinary Safari with its address bar, remove it and add the site from Safari again. On iOS versions with an "Open as Web App" switch, keep it on. Audio recordings still need separate offline download.

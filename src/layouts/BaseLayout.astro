@@ -18,6 +18,7 @@ const fullTitle = title === 'Cantario' ? 'Cantario · Tu cancionero vivo' : titl
   <meta property="og:description" content={description} />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Cantario" />
+  <link rel="manifest" href={base + 'manifest.webmanifest'} />
   <link rel="icon" type="image/svg+xml" href={base + 'icon.svg'} />
   <link rel="apple-touch-icon" href={base + 'icons/apple-touch-icon.png'} />
   <title>{fullTitle}</title>
@@ -41,6 +42,7 @@ const fullTitle = title === 'Cantario' ? 'Cantario · Tu cancionero vivo' : titl
       </form>
     </div>
   </dialog>
+  <script type="module" src={base + 'scripts/pwa-bootstrap.js'}></script>
   <script type="module" src={base + 'scripts/install-app.js'}></script>
 </body>
 </html>

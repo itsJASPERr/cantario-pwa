@@ -80,6 +80,10 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <a class="song-edit-link song-edit-primary" href={editSongUrl} target="_blank" rel="noopener noreferrer">Editar canción <span aria-hidden="true">↗</span></a>
       <a class="song-create-link" href={newSongUrl} target="_blank" rel="noopener noreferrer">+ Nueva canción</a>
     </nav>
+    <div class="offline-readiness offline-readiness-song" data-offline-readiness role="status" aria-live="polite">
+      <span class="offline-ready-dot" aria-hidden="true"></span>
+      <span data-offline-status>Preparando acceso sin conexión…</span>
+    </div>
     <div class="performance-launch-row">
       <button type="button" id="performance-enter" class="performance-launch" aria-haspopup="dialog">
         <span aria-hidden="true">▶</span>

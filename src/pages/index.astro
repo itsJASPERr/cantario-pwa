@@ -116,7 +116,11 @@ const searchIndex = songs.map(song => ({
       ))}
     </div>
     <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">♫</span><strong>No encontramos canciones</strong><p>Probá otro término o cambiá los filtros.</p></div>
-    <div class="library-note"><span aria-hidden="true">✳</span> Instalá Cantario con el botón de arriba para tener tu biblioteca cerca. Las canciones y recursos guardados estarán disponibles sin conexión después de cargarse.</div>
+    <div class="offline-readiness" data-offline-readiness role="status" aria-live="polite">
+      <span class="offline-ready-dot" aria-hidden="true"></span>
+      <span data-offline-status>Preparando acceso sin conexión…</span>
+    </div>
+    <div class="library-note"><span aria-hidden="true">✳</span> Para usar Cantario sin internet, abrí la app instalada con conexión y esperá a ver “Lista para usar sin conexión”. Las grabaciones se guardan aparte.</div>
   </section>
 </main>
 <footer class="footer"><span>cantario<span class="brand-dot">.</span></span><span>Canciones para llevar, cantar y compartir.</span></footer>

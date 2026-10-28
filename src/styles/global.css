@@ -562,3 +562,18 @@
 .performance-bpm-edit input{width:82px;min-height:44px;padding:8px;background:#375944;
  border:1px solid #86a18b;border-radius:8px;text-align:center;color:#fff;font-size:14px;
  font-variant-numeric:tabular-nums}
+
+
+/* Confirm cache readiness, not just a Home Screen icon. */
+.offline-readiness{
+  display:inline-flex;align-items:center;gap:9px;
+  margin:18px 0 7px;padding:10px 14px;
+  border:1px solid #d8dacd;border-radius:9px;background:#f8f8f1;
+  color:#56685a;font-size:12px;line-height:1.4;
+}
+.offline-readiness[data-state="ready"]{background:#e8f0e4;border-color:#b4d0b2;color:#26482f}
+.offline-readiness[data-state="error"]{background:#fcf4e9;border-color:#ebd4aa;color:#79532f}
+.offline-ready-dot{width:9px;height:9px;border-radius:50%;background:#d4b172;flex-shrink:0}
+.offline-readiness[data-state="ready"] .offline-ready-dot{background:#4e9868}
+.offline-readiness[data-state="error"] .offline-ready-dot{background:#c88d52}
+.offline-readiness-song{margin:0 0 16px}

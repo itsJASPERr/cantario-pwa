@@ -23,3 +23,11 @@ test('all supported platforms have usable fallback steps, no false automatic ins
  assert.ok(installGuide('ios').steps.some(step=>step.includes('pantalla de inicio')));
  assert.ok(installGuide('android').steps.some(step=>step.includes('Chrome')));
 });
+
+
+test('iOS installation guide explains app-web mode and offline first launch',()=>{
+ const guide=installGuide('ios');
+ assert.ok(guide.steps.some(x=>x.includes('app web')));
+ assert.ok(guide.note.includes('CON internet'));
+ assert.ok(guide.note.includes('Safari'));
+});

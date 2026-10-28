@@ -22,7 +22,9 @@ jobs:
       - run: npm test
       - run: npm run check:performance
       - run: npm run check:install
+      - run: npm run check:offline
       - run: npm run build
+      - run: npm run check:pwa-build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
