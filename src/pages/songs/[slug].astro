@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import InstallApp from '../../components/InstallApp.astro';
 import { ArrowLeft, ChevronDown, Minus, Moon, Plus, SlidersHorizontal, Sun, X } from '@lucide/astro';
 import { hasChordTokens } from '../../lib/rehype-chords.mjs';
 import { inspectSongTiming } from '../../lib/song-timing.mjs';
@@ -44,7 +45,10 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <img src={base + 'icon.svg'} alt="" width="42" height="42" />
       <span class="brand-copy"><strong>cantario<span class="brand-dot">.</span></strong><small>tu cancionero vivo</small></span>
     </a>
-    <a href={base} class="back-link">← Biblioteca</a>
+    <div class="topbar-actions topbar-reading-actions">
+      <a href={base} class="back-link">← Biblioteca</a>
+      <InstallApp />
+    </div>
   </header>
   <main class="reader">
     <a class="breadcrumb" href={base}>← Volver a las canciones</a>

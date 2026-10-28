@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { X } from '@lucide/astro';
 interface Props { title?: string; description?: string }
 const { title = 'Cantario', description = 'Tu cancionero vivo. Canciones para llevar, cantar y compartir.' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
@@ -21,5 +22,25 @@ const fullTitle = title === 'Cantario' ? 'Cantario · Tu cancionero vivo' : titl
   <link rel="apple-touch-icon" href={base + 'icons/apple-touch-icon.png'} />
   <title>{fullTitle}</title>
 </head>
-<body><div class="app-shell"><slot /></div></body>
+<body>
+  <div class="app-shell"><slot /></div>
+  <dialog id="install-help-dialog" class="install-help-dialog" aria-labelledby="install-help-title">
+    <div class="install-help-content">
+      <div class="install-help-heading">
+        <div>
+          <span class="eyebrow eyebrow-olive">CANTARIO EN TU DISPOSITIVO</span>
+          <h2 id="install-help-title">Instalar Cantario</h2>
+        </div>
+        <form method="dialog"><button type="submit" class="install-help-close" aria-label="Cerrar instrucciones"><X size={20} aria-hidden="true" /></button></form>
+      </div>
+      <p id="install-help-intro"></p>
+      <ol id="install-help-steps"></ol>
+      <p id="install-help-note" class="install-help-note"></p>
+      <form method="dialog" class="install-help-footer">
+        <button type="submit" class="install-help-done">Entendido</button>
+      </form>
+    </div>
+  </dialog>
+  <script type="module" src={base + 'scripts/install-app.js'}></script>
+</body>
 </html>

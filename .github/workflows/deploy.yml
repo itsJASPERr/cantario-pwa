@@ -21,6 +21,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run check:performance
+      - run: npm run check:install
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

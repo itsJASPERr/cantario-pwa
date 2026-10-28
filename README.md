@@ -177,3 +177,10 @@ The performance view now provides a compact floating visual cue near the top of 
 - The floating cue does not alter the timing file format, song metadata, source lyrics, compact performance controls, or audio. No new CMS fields are needed. It remains offline-first.
 
 To reduce false INTERLUDIO predictions in partially timed songs, Cantario only infers an interlude from a 20+ second gap **when the next timed line begins a new stanza** (separated by a blank line in the song Source). A gap inside the same stanza is treated as normal phrasing, even if it is long. This is intentionally conservative until explicit section cues are available.
+
+
+## Install Cantario PWA from the UI
+
+Both the song library and individual song pages show an **Instalar** button in the top header (hidden in standalone/PWA mode). The button uses the browser's native install prompt if \`beforeinstallprompt\` is available and valid. On iOS, where that event generally isn't available, a small dialog explains how to **open Cantario in Safari → Share → Add to Home Screen → Add**. Android and desktop browsers without an available native prompt receive manual browser menu instructions instead. The button never claims installation succeeded until an installation event confirms it. A browser embedded inside another app may not support installing; open the site in Safari or Chrome.
+
+The PWA already has a manifest and offline service-worker cache. The install control only improves discoverability; some browsers may decline to install if their platform requirements are not satisfied. Saved recordings still require their separate offline-storage action.

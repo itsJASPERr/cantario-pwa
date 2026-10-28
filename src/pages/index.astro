@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import InstallApp from '../components/InstallApp.astro';
 import { stripChordTokens } from '../lib/rehype-chords.mjs';
 import { stripSongTimeTokens } from '../lib/song-timing.mjs';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
@@ -29,7 +30,7 @@ const searchIndex = songs.map(song => ({
     <img src={base + 'icon.svg'} alt="" width="42" height="42" />
     <span class="brand-copy"><strong>cantario<span class="brand-dot">.</span></strong><small>tu cancionero vivo</small></span>
   </a>
-  <div class="topbar-actions"><span id="connection" class="connection" title="Estado de conexión" aria-live="polite"><span aria-hidden="true">●</span> <span class="connection-label">Tu biblioteca, siempre cerca</span></span></div>
+  <div class="topbar-actions"><span id="connection" class="connection" title="Estado de conexión" aria-live="polite"><span aria-hidden="true">●</span> <span class="connection-label">Tu biblioteca, siempre cerca</span></span><InstallApp /></div>
 </header>
 <main>
   <section class="hero" aria-labelledby="hero-title">
@@ -115,7 +116,7 @@ const searchIndex = songs.map(song => ({
       ))}
     </div>
     <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">♫</span><strong>No encontramos canciones</strong><p>Probá otro término o cambiá los filtros.</p></div>
-    <div class="library-note"><span aria-hidden="true">✳</span> Instalá Cantario desde tu navegador para tener tu biblioteca disponible sin conexión después de la primera carga.</div>
+    <div class="library-note"><span aria-hidden="true">✳</span> Instalá Cantario con el botón de arriba para tener tu biblioteca cerca. Las canciones y recursos guardados estarán disponibles sin conexión después de cargarse.</div>
   </section>
 </main>
 <footer class="footer"><span>cantario<span class="brand-dot">.</span></span><span>Canciones para llevar, cantar y compartir.</span></footer>
