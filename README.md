@@ -118,3 +118,7 @@ Open any song and choose **▶ Modo Escenario**. Cantario opens an immersive dar
 Duration, speed, countdown and wake-lock preferences are stored locally on the device; font size and chord visibility use the same settings as the ordinary reader. The feature works offline after the updated PWA has been loaded. On iOS, screen wake lock depends on browser / OS support and may not be available. Browser storage and cached offline assets are not guaranteed permanent.
 
 Performance mode bases its speed on the actual scrollable height, adapting to font-size changes, chord visibility, browser resizing and long song content. Short songs that are fully visible do not scroll. Long individual lyric lines may wrap, and tightly placed chord pills can still overlap.
+
+
+### v0.3 scrolling reliability fix
+Short songs now remain scrollable in Modo Escenario even if all lyric lines initially fit in the reading area. The scrolling container uses a larger trailing space and stops with the last lines still readable. Its target is measured from the actual position of the final lyric, not from an offset parent that may vary between browsers. Automatic movement accumulates sub-pixel changes independent of browser rounding, and the progress indicator includes elapsed time. If a song scrolls very slowly at the default 3:30 duration, choose **1:00** and increase speed with **+** to test immediately; saved preferences remain unchanged.

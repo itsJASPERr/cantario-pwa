@@ -37,3 +37,17 @@ test('progress never overshoots end or goes below start', () => {
   assert.equal(advanceScroll(-3,630,0,3),0);
   assert.equal(progressPercent(1000,630),100);
 });
+
+
+test('fractional movement accumulates even when scrollTop is rounded by a browser', () => {
+  const distance = 450;
+  const rate = scrollRate(distance, 210, 1);
+  let virtualPosition = 0;
+  let browserScrollTop = 0;
+  for (let i = 0; i < 120; i++) {
+    virtualPosition = advanceScroll(virtualPosition, distance, 1 / 60, rate);
+    browserScrollTop = Math.round(virtualPosition);
+  }
+  assert.ok(virtualPosition > 4);
+  assert.ok(browserScrollTop >= 4);
+});

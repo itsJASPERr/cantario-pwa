@@ -62,6 +62,10 @@ import {
   let previousFocus = null;
   let touchStartY = null;
   let touchMoved = false;
+  // Keep a floating-point position independently of the browser's scrollTop
+  // precision. Some browsers round scrollTop when moving <1 pixel per frame.
+  let virtualPosition = 0;
+  let elapsedSeconds = 0;
 
   function setStatus(message) {
     status.textContent = message;
@@ -69,18 +73,31 @@ import {
   function physicalDistance() {
     if (!dialog.open) return 0;
     const possible = maxScrollDistance(scroll.scrollHeight, scroll.clientHeight);
-    // Extra trailing padding should not force a nearly empty song to scroll.
-    const contentEnd = endmark.offsetTop + endmark.offsetHeight;
-    if (contentEnd <= scroll.clientHeight - 20) return 0;
-    return possible;
+    const viewportHeight = scroll.clientHeight;
+    if (viewportHeight <= 0) return 0;
+    // Endmark coordinates relative to the scrolling content, not its
+    // offsetParent (which varies with browser layout).
+    const endPosition = endmark.getBoundingClientRect().bottom -
+      scroll.getBoundingClientRect().top + scroll.scrollTop;
+    // Finish with the final lyric comfortably visible. Short songs still
+    // move, rather than being disabled just because every line initially fits.
+    const desired = Math.max(0, endPosition - viewportHeight * 0.35);
+    const minimum = Math.min(viewportHeight * 0.25,
+      Math.max(0, endPosition - viewportHeight * 0.18));
+    return Math.min(possible, Math.max(desired, minimum));
   }
   function updateProgress() {
     const distance = physicalDistance();
     const value = distance ? progressPercent(scroll.scrollTop, distance) : 100;
-    progress.textContent = distance ? value + '%' : 'Todo visible';
+    const time = Math.floor(elapsedSeconds);
+    const clock = String(Math.floor(time / 60)).padStart(2, '0') + ':' +
+      String(time % 60).padStart(2, '0');
+    progress.textContent = distance
+      ? value + '% · ' + clock
+      : 'Todo visible';
     noScroll.hidden = distance > 0;
-    if (state === 'ready' && !distance) play.disabled = true;
-    else play.disabled = false;
+    // Only a genuinely non-scrollable (empty) page disables Start.
+    play.disabled = distance < 1 && state !== 'playing' && state !== 'countdown';
   }
   function syncPlay() {
     if (state === 'playing') play.textContent = 'Ⅱ Pausar';
@@ -123,9 +140,11 @@ import {
     const distance = physicalDistance();
     if (distance < 1) { pause('Todo el texto cabe en pantalla'); return; }
     const rate = scrollRate(distance, durationSeconds, multiplier);
-    scroll.scrollTop = advanceScroll(scroll.scrollTop, distance, deltaSeconds, rate);
+    elapsedSeconds += deltaSeconds;
+    virtualPosition = advanceScroll(virtualPosition, distance, deltaSeconds, rate);
+    scroll.scrollTop = virtualPosition;
     updateProgress();
-    if (scroll.scrollTop >= distance - 0.75) { finished(); return; }
+    if (virtualPosition >= distance - 0.75) { finished(); return; }
     frame = requestAnimationFrame(tick);
   }
   function beginPlaying() {
@@ -136,6 +155,7 @@ import {
       return;
     }
     state = 'playing';
+    virtualPosition = Math.min(physicalDistance(), scroll.scrollTop);
     lastFrame = null;
     setStatus('Desplazamiento automático');
     syncPlay();
@@ -159,6 +179,8 @@ import {
     if (state === 'playing' || state === 'countdown') { pause(); return; }
     if (state === 'finished') {
       scroll.scrollTop = 0;
+      virtualPosition = 0;
+      elapsedSeconds = 0;
       state = 'ready';
     }
     if (state === 'ready' && countdownEnabled) beginCountdown();
@@ -261,6 +283,8 @@ import {
     cancelCountdown();
     stopFrame();
     scroll.scrollTop = 0;
+    virtualPosition = 0;
+    elapsedSeconds = 0;
     // Sync with Cantario's existing reader preference keys.
     fontSize = Math.min(32, Math.max(12, Number(read(KEY.size,20)) || 20));
     chordsVisible = read(KEY.chords,'yes') !== 'no';
@@ -310,7 +334,11 @@ import {
   controlsToggle.addEventListener('click', () => setControlsHidden(!dialog.classList.contains('controls-hidden')));
 
   // Never fight a musician's manual scroll. Swipes and wheel movements pause.
-  scroll.addEventListener('wheel', () => { if (state === 'playing') pause('En pausa · desplazamiento manual'); }, {passive:true});
+  scroll.addEventListener('wheel', () => {
+    if (state === 'playing') pause('En pausa · desplazamiento manual');
+    // Browser updates scrollTop after the wheel event; resync on next frame.
+    requestAnimationFrame(() => { if (state !== 'playing') virtualPosition = scroll.scrollTop; });
+  }, {passive:true});
   scroll.addEventListener('touchstart', event => {
     touchStartY = event.touches[0]?.clientY ?? null;
     touchMoved = false;
@@ -321,6 +349,7 @@ import {
     if (y === undefined || Math.abs(y - touchStartY) < 7) return;
     touchMoved = true;
     if (state === 'playing') pause('En pausa · desplazamiento manual');
+    virtualPosition = scroll.scrollTop;
   }, {passive:true});
   scroll.addEventListener('touchend', () => { touchStartY = null; }, {passive:true});
 
@@ -339,6 +368,7 @@ import {
       onPlay();
     } else if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End'].includes(event.key)) {
       if (state === 'playing') pause('En pausa · desplazamiento manual');
+      requestAnimationFrame(() => { if (state !== 'playing') virtualPosition = scroll.scrollTop; });
     }
   });
 
