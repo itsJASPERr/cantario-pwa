@@ -136,3 +136,12 @@ test('cue timestamps freeze through pause and only resume on advancing clock',()
  assert.deepEqual(paused,playing);
  assert.equal(paused.value,'00:19');
 });
+
+
+test('interlude prediction is suppressed for long gaps within the same stanza',()=>{
+ const times=[12,36,63,72];
+ assert.equal(liveCueAt(times,44,{timed:true,interludeStarts:[]}),null);
+ assert.equal(liveCueAt(times,63,{timed:true,interludeStarts:[]}),null);
+ assert.equal(liveCueAt(times,44,{timed:true,interludeStarts:[63]}).kind,'interlude');
+ assert.equal(liveCueAt(times,63,{timed:true,interludeStarts:[63]}).kind,'now');
+});

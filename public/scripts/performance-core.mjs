@@ -113,7 +113,7 @@ function arrivalCue() {
 /**
  * @param {number[]|undefined} timestamps - Monotonic sung-line starts (seconds)
  * @param {number} clock - Current song time in seconds
- * @param {{state?:string,countdownRemaining?:number,timed?:boolean}} options
+ * @param {{state?:string,countdownRemaining?:number,timed?:boolean,interludeStarts?:number[]}} options
  * @returns {{kind:string,label:string,value:string,detail:string}|null}
  */
 export function liveCueAt(timestamps, clock, options = {}) {
@@ -143,13 +143,16 @@ export function liveCueAt(timestamps, clock, options = {}) {
   for(let i=1;i<times.length;i++){
     const previous=times[i-1];
     const next=times[i];
+    // At runtime, only infer interludes when the upcoming line begins a new
+    // stanza. A long gap within a stanza may contain untimed sung lines.
+    const gapIsInterlude = next-previous >= INTERLUDE_MIN_GAP_SECONDS &&
+      (!Array.isArray(options.interludeStarts) || options.interludeStarts.includes(next));
     if(now >= next && now < next+CUE_NOW_SECONDS && state === 'playing' &&
-       next-previous >= INTERLUDE_MIN_GAP_SECONDS) return arrivalCue();
+       gapIsInterlude) return arrivalCue();
     if(now>=next) continue;
     // A long break might be a sustained vocal or free-form instrumental.
     // Wait several seconds after the previous line before announcing a gap.
-    if(next-previous < INTERLUDE_MIN_GAP_SECONDS ||
-       now < previous+INTERLUDE_GRACE_SECONDS) return null;
+    if(!gapIsInterlude || now < previous+INTERLUDE_GRACE_SECONDS) return null;
     const remaining=next-now;
     if(remaining<=CUE_PREPARE_SECONDS) return prepareCue(remaining,false);
     return {kind:'interlude',label:'INTERLUDIO',value:cueTime(remaining),

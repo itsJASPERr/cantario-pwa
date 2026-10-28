@@ -222,7 +222,10 @@ import {
     const cue = liveCueAt(timedLines.map(line=>line.time), songClock, {
       timed:mode === 'timed' && Boolean(timedTrack),
       state,
-      countdownRemaining
+      countdownRemaining,
+      interludeStarts:timedLines.filter((line,i) => i > 0 &&
+        line.element.closest('p') !== timedLines[i-1].element.closest('p'))
+        .map(line => line.time)
     });
     if (!cue) {
       if (!cueElement.hidden) cueElement.hidden = true;
