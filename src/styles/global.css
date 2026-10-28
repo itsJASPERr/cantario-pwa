@@ -390,3 +390,22 @@
   .performance-dialog .performance-timing{margin-bottom:8px}
   .performance-dialog .performance-scroll{padding-left:20px;padding-right:20px}
 }
+
+/* v0.3.2 – Lucide icons and clearer wake-lock controls */
+.performance-duration-wrap{position:relative;display:inline-flex;align-items:center;min-width:98px}
+.performance-duration-wrap select{appearance:none;-webkit-appearance:none;width:100%;padding-right:33px;cursor:pointer}
+.performance-duration-chevron{position:absolute;right:11px;pointer-events:none;color:#e5ebdf}
+.performance-wake-button{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.performance-wake-button .wake-icon-on,.performance-wake-button .wake-icon-off{flex:0 0 auto}
+.performance-wake-button[aria-pressed="true"] .wake-icon-off,
+.performance-wake-button[aria-pressed="false"] .wake-icon-on{display:none}
+.performance-speed-button,.performance-settings-toggle,.performance-exit,
+.performance-settings-heading button{align-items:center;justify-content:center}
+.performance-speed-button{display:inline-flex}
+.performance-exit{display:inline-flex;align-items:center}
+.performance-settings-heading button{display:flex;align-items:center;justify-content:center}
+@media(max-width:700px),(max-height:500px) and (max-width:950px){
+ .performance-dialog .performance-timing .performance-duration-wrap{min-width:98px}
+ .performance-dialog .performance-timing .performance-duration-wrap select{min-width:0}
+ .performance-dialog .performance-wake-button{justify-content:center}
+}

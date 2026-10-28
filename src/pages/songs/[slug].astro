@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ArrowLeft, ChevronDown, Minus, Moon, Plus, SlidersHorizontal, Sun, X } from '@lucide/astro';
 import { hasChordTokens } from '../../lib/rehype-chords.mjs';
 export async function getStaticPaths() {
   const songs = await getCollection('songs');
@@ -172,7 +173,7 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
   <div class="performance-shell">
     <header class="performance-header">
       <button type="button" class="performance-exit" id="performance-exit" aria-label="Salir del modo escenario">
-        <span aria-hidden="true">←</span> Salir
+        <ArrowLeft size={16} aria-hidden="true" /> Salir
       </button>
       <div class="performance-heading">
         <strong id="performance-heading">{song.data.title}</strong>
@@ -202,24 +203,23 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       </div>
       <p id="performance-no-scroll" class="performance-no-scroll" hidden>La canción cabe en la pantalla. No necesitás desplazamiento automático.</p>
       <div class="performance-play-row">
-        <button type="button" class="performance-speed-button" id="performance-slower" aria-label="Desplazamiento más lento">−</button>
+        <button type="button" class="performance-speed-button" id="performance-slower" aria-label="Desplazamiento más lento"><Minus size={22} aria-hidden="true" /></button>
         <button type="button" class="performance-play" id="performance-play">▶ Iniciar</button>
-        <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Desplazamiento más rápido">+</button>
+        <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Desplazamiento más rápido"><Plus size={22} aria-hidden="true" /></button>
       </div>
       <button type="button" id="performance-settings-toggle" class="performance-settings-toggle"
         aria-expanded="false" aria-controls="performance-settings" aria-label="Abrir ajustes de escenario" title="Ajustes de escenario">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 7h16M4 17h16M9 4v6M15 14v6"/>
-        </svg>
+        <SlidersHorizontal size={21} aria-hidden="true" />
       </button>
       </div>
       <div class="performance-settings" id="performance-settings" aria-label="Ajustes de escenario">
         <div class="performance-settings-heading">
           <strong>Ajustes de escenario</strong>
-          <button type="button" id="performance-settings-close" aria-label="Cerrar ajustes">⌄</button>
+          <button type="button" id="performance-settings-close" aria-label="Cerrar ajustes"><X size={20} aria-hidden="true" /></button>
         </div>
       <div class="performance-timing">
         <label for="performance-duration">Duración</label>
+        <span class="performance-duration-wrap">
         <select id="performance-duration" aria-label="Duración aproximada de desplazamiento">
           <option value="60">1:00</option>
           <option value="90">1:30</option>
@@ -238,6 +238,8 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
           <option value="1200">20:00</option>
           <option value="1800">30:00</option>
         </select>
+        <ChevronDown class="performance-duration-chevron" size={17} aria-hidden="true" />
+        </span>
         <span class="performance-speed-label">Velocidad <strong id="performance-speed">1×</strong></span>
       </div>
       <div class="performance-extras">
@@ -247,7 +249,11 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         </div>
         <button type="button" id="performance-chords" aria-pressed="true" disabled={!hasChords} hidden={!hasChords}>♫ Acordes: sí</button>
         <button type="button" id="performance-countdown" aria-pressed="true">◷ Inicio: 3 s</button>
-        <button type="button" id="performance-wake" aria-pressed="true" aria-label="Mantener pantalla activa"><span id="performance-wake-label">☼ Pantalla activa</span></button>
+        <button type="button" id="performance-wake" class="performance-wake-button" aria-pressed="true" aria-label="Mantener pantalla encendida" title="Evita que el dispositivo se bloquee mientras está abierto Modo Escenario, cuando el navegador lo permite">
+          <Sun class="wake-icon-on" size={16} aria-hidden="true" />
+          <Moon class="wake-icon-off" size={16} aria-hidden="true" />
+          <span id="performance-wake-label">Pantalla: verificando…</span>
+        </button>
       </div>
       </div>
     </footer>

@@ -131,3 +131,7 @@ Mobile and phone-landscape performance screens show a **compact, always-availabl
 The settings icon opens a temporary dark drawer **over** the song, without resizing the scroll viewport, containing the existing song-duration, font-size, chord-visibility, countdown and screen-awake settings. Tap outside the drawer, tap its close control, or press Play/Resume to close it. If the song is playing, it closes automatically after five seconds without interaction, except while editing a field.
 
 The normal desktop controls are unchanged. All existing localStorage settings are retained, and no CMS or song format migration is required. The compact bar is never auto-hidden; Pause remains easy to reach.
+
+## Performance icons and screen wake lock
+
+The performance settings use Lucide's Astro SVG icons (`@lucide/astro`), including the duration dropdown chevron, close button, settings control, and wake-lock states. **Pantalla activa** means the Screen Wake Lock API successfully requested the screen to stay on during performance; **Pantalla normal** means the feature is off and normal device timeout rules apply. Unsupported, denied, and released states are displayed separately. This does not control brightness or guarantee that the OS will honor the request (low battery or backgrounding can release it).

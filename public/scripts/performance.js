@@ -288,19 +288,23 @@ import {
   }
   function updateWakeLabel() {
     wake.setAttribute('aria-pressed', String(wakeEnabled));
-    if (!wakeEnabled) wakeLabel.textContent = '☼ Pantalla: normal';
-    else if (wakeLock && !wakeLock.released) wakeLabel.textContent = '☼ Pantalla activa';
-    else wakeLabel.textContent = wakeMessage || '☼ No disponible';
+    const label = !wakeEnabled ? 'Pantalla normal'
+      : wakeLock && !wakeLock.released ? 'Pantalla activa'
+      : wakeMessage || 'Pantalla no disponible';
+    wakeLabel.textContent = label;
+    wake.setAttribute('aria-label', (wakeEnabled ? 'Desactivar' : 'Activar') +
+      ' mantener pantalla encendida. Estado: ' + label);
+    wake.title = 'Evita que la pantalla se apague durante la actuación, si el dispositivo lo permite. Estado: ' + label;
   }
   async function acquireWakeLock() {
     if (!wakeEnabled || !dialog.open || document.hidden) return;
     if (!('wakeLock' in navigator)) {
-      wakeMessage = '☼ No compatible';
+      wakeMessage = 'No compatible';
       updateWakeLabel();
       return;
     }
     if (wakeLock && !wakeLock.released) return;
-    wakeMessage = '☼ Activando…';
+    wakeMessage = 'Activando…';
     updateWakeLabel();
     try {
       const lock = await navigator.wakeLock.request('screen');
@@ -313,12 +317,12 @@ import {
       lock.addEventListener('release', () => {
         if (wakeLock === lock) {
           wakeLock = null;
-          wakeMessage = '☼ Pantalla liberada';
+          wakeMessage = 'Pantalla liberada';
           updateWakeLabel();
         }
       });
     } catch {
-      wakeMessage = '☼ No disponible';
+      wakeMessage = 'No disponible';
     }
     updateWakeLabel();
   }
