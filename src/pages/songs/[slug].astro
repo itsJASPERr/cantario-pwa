@@ -9,6 +9,25 @@ interface Props { song: CollectionEntry<'songs'> }
 const {song} = Astro.props;
 const {Content} = await render(song);
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const isWebUrl = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !value.trim()) return false;
+  try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; }
+  catch { return false; }
+};
+const links = [
+  {label: 'Spotify', url: song.data.spotify_url},
+  {label: 'YouTube', url: song.data.youtube_url},
+  {label: 'Shazam', url: song.data.shazam_url}
+].filter((link): link is {label:string;url:string} => isWebUrl(link.url));
+const rawFiles = Array.isArray(song.data.recordings) ? song.data.recordings : (song.data.recordings ? [song.data.recordings] : []);
+const recordings = rawFiles.filter(file => {
+  if (typeof file !== 'string' || !file.startsWith(base + 'media/recordings/')) return false;
+  try {
+    const url = new URL(file, Astro.url);
+    return url.origin === Astro.url.origin && !decodeURIComponent(url.pathname).includes('..');
+  } catch { return false; }
+});
+const publishedForSong = (await getCollection('lists')).filter(list => list.data.songs.includes(song.id));
 ---
 <BaseLayout title={song.data.title} description={'Letra de ' + song.data.title + ' — ' + song.data.artist + '. Disponible sin conexión en Cantario.'}>
   <header class="topbar topbar-reading">
@@ -25,8 +44,28 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <h1>{song.data.title}</h1><p>{song.data.artist}</p>
       {song.data.tags && song.data.tags.length > 0 && <div class="reader-tags">{song.data.tags.map(tag => <span>{tag}</span>)}</div>}
     </section>
+    {(links.length > 0 || recordings.length > 0) && <section class="song-media" aria-label="Escuchar esta canción">
+      <div class="song-media-heading"><span class="eyebrow eyebrow-olive">ESCUCHÁ ESTA CANCIÓN</span><h2>Escuchar y acompañar</h2></div>
+      {links.length > 0 && <div class="song-platform-links">
+        {links.map(link => <a class="song-platform-link" href={link.url} target="_blank" rel="noopener noreferrer">
+          <span>{link.label}</span><span aria-hidden="true">↗</span>
+        </a>)}
+      </div>}
+      {recordings.length > 0 && <div class="recordings-list">
+        {recordings.map((path,idx) => <div class="recording-item" data-recording={path}>
+          <div class="recording-header"><strong>Grabación {idx+1}</strong><a href={path} download>Descargar archivo ↗</a></div>
+          <audio controls preload="none" src={path} aria-label={'Grabación ' + (idx+1) + ' de ' + song.data.title}>Tu navegador no soporta audio.</audio>
+          <div class="recording-offline-control">
+            <button type="button" data-cache-recording>Guardar sin conexión</button>
+            <span data-recording-status aria-live="polite">Podés guardar este archivo para escucharlo sin internet.</span>
+          </div>
+        </div>)}
+      </div>}
+    </section>}
+    {publishedForSong.length > 0 && <p class="reader-published-lists">Listas publicadas: {publishedForSong.map(list => list.data.title).join(' · ')}</p>}
     <section class="reader-controls" aria-label="Opciones de lectura">
-      <button type="button" id="favorite" class="reader-favorite" aria-pressed="false"><span id="favorite-heart">♡</span> <span id="favorite-label">Guardar favorita</span></button>
+      <div class="reader-list-actions"><button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title}>+ Agregar a listas</button>
+      <button type="button" id="favorite" class="reader-favorite" aria-pressed="false"><span id="favorite-heart">♡</span> <span id="favorite-label">Guardar favorita</span></button></div>
       <div class="font-controls"><span>Tamaño de letra</span>
         <button type="button" id="font-down" aria-label="Reducir tamaño de letra">A−</button>
         <button type="button" id="font-up" aria-label="Aumentar tamaño de letra">A+</button>
@@ -71,4 +110,16 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     document.getElementById('font-up').addEventListener('click', () => setSize(fontSize + 2));
     setSize(fontSize);
   </script>
+<dialog id="song-lists-dialog" class="lists-dialog" aria-labelledby="manage-song-title">
+  <form method="dialog" class="dialog-header"><h3 id="manage-song-title">Agregar a listas</h3><button type="submit" class="close-dialog" aria-label="Cerrar">✕</button></form>
+  <p class="dialog-intro">Marcá todas las listas donde querés guardar esta canción. Los cambios se conservan en este dispositivo.</p>
+  <div id="song-lists-options" class="song-lists-options"></div>
+  <form id="modal-new-list-form" class="create-list-form">
+    <label class="sr-only" for="modal-list-name">Nombre de nueva lista</label>
+    <input id="modal-list-name" name="name" maxlength="60" placeholder="Nueva lista…" required />
+    <button type="submit" class="create-list-button">+ Crear y agregar</button>
+  </form>
+</dialog>
+<script type="module" src={base + 'scripts/lists-ui.js'}></script>
+<script type="module" src={base + 'scripts/audio-offline.js'}></script>
 </BaseLayout>
