@@ -1,6 +1,11 @@
 media:
-  input: public/media
-  output: /cantario-pwa/media
+  - name: recordings
+    label: Grabaciones
+    input: public/media/recordings
+    output: /cantario-pwa/media/recordings
+    categories: [audio]
+    extensions: [mp3, m4a, ogg, wav, webm]
+    rename: safe
 content:
   - name: songs
     label: Canciones
@@ -39,6 +44,25 @@ content:
         label: Etiquetas
         type: string
         list: true
+      - name: spotify_url
+        label: Spotify (enlace)
+        type: string
+      - name: youtube_url
+        label: YouTube (enlace)
+        type: string
+      - name: shazam_url
+        label: Shazam (enlace)
+        type: string
+      - name: recordings
+        label: Grabaciones propias
+        type: file
+        description: Sube archivos MP3, M4A, OGG, WAV o WebM. Quedarán publicados en GitHub Pages.
+        options:
+          media: recordings
+          multiple: true
+          categories: [audio]
+          extensions: [mp3, m4a, ogg, wav, webm]
+          rename: safe
       - name: body
         label: Letra
         type: rich-text
@@ -48,3 +72,33 @@ content:
           format: markdown
           switcher: true
           media: false
+
+  - name: lists
+    label: Listas publicadas
+    type: collection
+    path: src/content/lists
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, description]
+      primary: title
+      sort: [title]
+      search: [title, description]
+    fields:
+      - name: title
+        label: Nombre de la lista
+        type: string
+        required: true
+      - name: description
+        label: Descripción
+        type: text
+      - name: songs
+        label: Canciones de la lista
+        type: reference
+        description: Una canción puede aparecer en tantas listas como quieras.
+        options:
+          collection: songs
+          multiple: true
+          value: "{name}"
+          label: "{title} — {artist}"
+          search: "title,artist"
