@@ -181,5 +181,5 @@
   line-height:1.15;user-select:text;z-index:1;box-shadow:0 2px 3px rgba(25,50,35,.06)
 }
 .lyrics.show-chords .chord-anchor[data-kind="cue"] .chord-chip{background:#efe5cd;color:#8e653b;border-color:#dec9a0;font-style:italic}
-.lyrics.show-chords p,.lyrics.show-chords li{line-height:2.65}
+.lyrics.show-chords p,.lyrics.show-chords li{line-height:2.8}
 @media(max-width:680px){.chord-view-toolbar{gap:8px}.chord-view-label{font-size:11px}.chord-view-options button{padding:8px 11px}}
