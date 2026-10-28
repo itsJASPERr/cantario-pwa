@@ -9,6 +9,9 @@ interface Props { song: CollectionEntry<'songs'> }
 const {song} = Astro.props;
 const {Content} = await render(song);
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const cmsSongs = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main/collection/songs';
+const editSongUrl = cmsSongs + '/edit/' + encodeURIComponent('src/content/songs/' + song.id + '.md');
+const newSongUrl = cmsSongs + '/new';
 const isWebUrl = (value: unknown): value is string => {
   if (typeof value !== 'string' || !value.trim()) return false;
   try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; }
@@ -63,6 +66,10 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       </div>}
     </section>}
     {publishedForSong.length > 0 && <p class="reader-published-lists">Listas publicadas: {publishedForSong.map(list => list.data.title).join(' · ')}</p>}
+    <nav class="reader-editor-actions" aria-label="Gestionar canción en Pages CMS">
+      <a class="song-edit-link song-edit-primary" href={editSongUrl} target="_blank" rel="noopener noreferrer">Editar canción <span aria-hidden="true">↗</span></a>
+      <a class="song-create-link" href={newSongUrl} target="_blank" rel="noopener noreferrer">+ Nueva canción</a>
+    </nav>
     <section class="reader-controls" aria-label="Opciones de lectura">
       <div class="reader-list-actions"><button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title}>+ Agregar a listas</button>
       <button type="button" id="favorite" class="reader-favorite" aria-pressed="false"><span id="favorite-heart">♡</span> <span id="favorite-label">Guardar favorita</span></button></div>
@@ -100,9 +107,9 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
     });
     syncFavorite();
     let fontSize = 20;
-    try { fontSize = Math.min(32, Math.max(16, Number(localStorage.getItem(SIZE_KEY) || 20) || 20)); } catch {}
+    try { fontSize = Math.min(32, Math.max(12, Number(localStorage.getItem(SIZE_KEY) || 20) || 20)); } catch {}
     function setSize(value) {
-      fontSize = Math.min(32, Math.max(16, value));
+      fontSize = Math.min(32, Math.max(12, value));
       lyrics.style.setProperty('--lyric-size', String(fontSize) + 'px');
       try { localStorage.setItem(SIZE_KEY, String(fontSize)); } catch {}
     }

@@ -2,6 +2,10 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const cmsBase = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main';
+const newSongUrl = cmsBase + '/collection/songs/new';
+const editSongUrl = (id: string) =>
+  cmsBase + '/collection/songs/edit/' + encodeURIComponent('src/content/songs/' + id + '.md');
 const songs = (await getCollection('songs')).sort((a, b) =>
   a.data.title.localeCompare(b.data.title, 'es', { sensitivity: 'base' })
 );
@@ -62,7 +66,10 @@ const searchIndex = songs.map(song => ({
   </section>
   <section class="library" aria-label="Biblioteca de canciones">
     <div class="section-header"><div><span class="eyebrow eyebrow-olive">TU BIBLIOTECA</span><h2>El cancionero</h2></div>
-      <a class="editor-link" href="https://app.pagescms.org/" target="_blank" rel="noopener noreferrer">Gestionar letras <span aria-hidden="true">↗</span></a>
+      <div class="library-editor-actions">
+        <a class="editor-link" href={cmsBase} target="_blank" rel="noopener noreferrer">Gestionar letras <span aria-hidden="true">↗</span></a>
+        <a class="song-create-link" href={newSongUrl} target="_blank" rel="noopener noreferrer">+ Nueva canción <span class="sr-only">(abre Pages CMS)</span></a>
+      </div>
     </div>
     <div class="search-bar">
       <span class="search-icon" aria-hidden="true">⌕</span>
@@ -90,8 +97,11 @@ const searchIndex = songs.map(song => ({
             <span class="song-details"><strong>{song.data.title}</strong><span>{song.data.artist}</span></span>
             <span class="card-arrow" aria-hidden="true">↗</span>
           </a>
-          <button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title} aria-label={'Agregar ' + song.data.title + ' a listas'} title="Agregar a listas">+ Lista</button>
-          <button type="button" class="favorite-button" data-favorite={song.id} aria-label={'Agregar ' + song.data.title + ' a favoritas'} aria-pressed="false" title="Guardar como favorita">♡</button>
+          <div class="song-card-actions">
+            <a class="song-edit-link" href={editSongUrl(song.id)} target="_blank" rel="noopener noreferrer" aria-label={'Editar ' + song.data.title + ' en Pages CMS'}>Editar <span aria-hidden="true">↗</span></a>
+            <button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title} aria-label={'Agregar ' + song.data.title + ' a listas'} title="Agregar a listas">+ Lista</button>
+            <button type="button" class="favorite-button" data-favorite={song.id} aria-label={'Agregar ' + song.data.title + ' a favoritas'} aria-pressed="false" title="Guardar como favorita">♡</button>
+          </div>
         </article>
       ))}
     </div>

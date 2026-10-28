@@ -88,3 +88,24 @@
   .reader-controls{align-items:flex-start;flex-wrap:wrap}
   .lists-dialog{padding:20px}
 }
+
+/* Pages CMS song editor entry points */
+.library-editor-actions,.reader-editor-actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:12px}
+.reader-editor-actions{margin:0 0 24px}
+.song-card-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.song-create-link,.song-edit-link{display:inline-flex;align-items:center;justify-content:center;gap:4px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;min-height:36px;line-height:1.2}
+.song-create-link{background:var(--forest);color:#fff;padding:10px 13px}
+.song-create-link:hover{background:#3c5948}
+.song-edit-link{padding:9px 11px;color:var(--forest);border:1px solid var(--border);background:var(--cream)}
+.song-edit-link:hover{border-color:var(--accent);color:#a56f3e}
+.song-edit-primary{background:var(--cream)}
+@media(max-width:680px){
+  .library .section-header{align-items:flex-start;flex-wrap:wrap}
+  .library-editor-actions{justify-content:flex-start}
+  .song-card{flex-wrap:wrap;min-height:0}
+  .song-card-main{flex:1 1 100%;min-height:64px;padding-bottom:3px}
+  .song-card-actions{justify-content:flex-end;width:100%;padding:0 8px 8px}
+  .song-card .song-list-button{max-width:none}
+  .song-card-actions .favorite-button{font-size:23px}
+  .reader-editor-actions{justify-content:flex-start}
+}
