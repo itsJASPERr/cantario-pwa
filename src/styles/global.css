@@ -522,3 +522,37 @@
   .install-app-button{padding:9px 10px}
   .install-help-heading h2{font-size:26px}
 }
+
+
+/* Visual tempo, four clear beat markers, without expanding the phone control bar. */
+.performance-beat-meter{display:flex;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
+.performance-beat{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:23px;height:23px;border:1px solid #65806e;border-radius:50%;
+ color:#b1c5b2;font:700 11px 'DM Sans',sans-serif;
+ transition:background .08s,color .08s,transform .08s;
+}
+.performance-beat.is-active{background:#dbdcac;color:#263f30;border-color:#dbdcac}
+.performance-beat-meter.is-running .performance-beat.is-active{transform:scale(1.12)}
+.performance-tempo-panel{max-width:490px;margin:8px auto 13px;padding:10px 12px;
+ border:1px solid #607b66;border-radius:10px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;
+ background:#2c4937;color:#e8efe3}
+.performance-tempo-heading{display:flex;align-items:center;gap:10px;justify-content:space-between;grid-column:1/-1;font-size:12px}
+.performance-tempo-heading strong{color:#f7e1ac;font-size:15px;font-variant-numeric:tabular-nums}
+.performance-tempo-panel p{margin:0;grid-column:1/-1;color:#d0dfcb;font-size:11px;line-height:1.45}
+.performance-tap-tempo{border:1px solid #b1c99d;background:#d6e3c9;color:#24402c;
+ border-radius:8px;min-height:44px;padding:7px 12px;font-size:12px;font-weight:700}
+.performance-tempo-panel small{align-self:center;font-size:11px;line-height:1.4;color:#c7dac5}
+.performance-bpm-mini{display:none}
+@media(max-width:700px),(max-height:500px) and (max-width:950px){
+  .performance-header .performance-beat-meter{grid-column:3;justify-self:end;gap:3px}
+  .performance-beat{width:17px;height:20px;font-size:10px}
+  .performance-tempo-panel{max-width:none;margin:9px 0}
+  .performance-dialog .performance-status{flex-direction:column;gap:2px}
+  .performance-dialog .performance-bpm-mini{display:block;font-size:10px;font-weight:700;
+    color:#f1dda8;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1}
+}
+@media(max-width:370px){
+  .performance-beat{width:15px;height:19px;font-size:9px}
+  .performance-dialog .performance-bpm-mini{font-size:9px}
+}

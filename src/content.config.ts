@@ -15,6 +15,7 @@ const songs = defineCollection({
     shazam_url: optionalText,
     recordings: z.union([z.array(z.string()), z.string()]).nullish(),
     // Canonical CMS field. Old numeric values remain readable for legacy songs.
+    bpm: z.number().int().min(40).max(240).nullish(),
     duration_mmss: optionalText,
     duration_seconds: z.number().int().positive().max(3600).nullish()
   })

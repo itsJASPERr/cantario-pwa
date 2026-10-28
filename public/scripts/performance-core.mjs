@@ -19,7 +19,7 @@ export function maxScrollDistance(scrollHeight, viewportHeight) {
 }
 export function scrollRate(distance, durationSeconds, speedMultiplier = 1) {
   const d = Math.max(0, Number(distance) || 0);
-  return d / normalizeDuration(durationSeconds) * normalizeSpeed(speedMultiplier);
+  return d / normalizeDuration(durationSeconds) * clamp(speedMultiplier, MIN_SPEED, MAX_SPEED);
 }
 export function advanceScroll(position, distance, elapsedSeconds, rate) {
   return Math.min(Math.max(0, distance), Math.max(0, position) + Math.max(0, elapsedSeconds) * Math.max(0, rate));
@@ -113,12 +113,17 @@ function arrivalCue() {
 /**
  * @param {number[]|undefined} timestamps - Monotonic sung-line starts (seconds)
  * @param {number} clock - Current song time in seconds
- * @param {{state?:string,countdownRemaining?:number,timed?:boolean,interludeStarts?:number[]}} options
+ * @param {{state?:string,countdownRemaining?:number,timed?:boolean,interludeStarts?:number[],beatCountIn?:boolean,countInBeat?:number}} options
  * @returns {{kind:string,label:string,value:string,detail:string}|null}
  */
 export function liveCueAt(timestamps, clock, options = {}) {
   const state=options.state || 'playing';
   if (state === 'countdown') {
+    if (options.beatCountIn) {
+      const beat=Math.max(1,Math.min(4,Math.floor(Number(options.countInBeat)||1)));
+      return {kind:'countdown',label:'PULSO DE ENTRADA',value:String(beat),
+        detail:'1 · 2 · 3 · 4 · al ritmo elegido'};
+    }
     const n=Math.max(1,Math.min(3,Math.ceil(Number(options.countdownRemaining)||1)));
     return {kind:'countdown',label:'LA CANCIÓN COMIENZA EN',value:String(n),
       detail:'Cuenta previa al inicio'};

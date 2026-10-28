@@ -177,7 +177,8 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
 <script type="module" src={base + 'scripts/audio-offline.js'}></script>
 
 <dialog class="performance-dialog" id="performance-dialog" aria-labelledby="performance-heading" aria-modal="true"
-  data-duration-seconds={timing.durationSeconds ?? ''} data-timing-valid={timing.valid ? 'yes':'no'}>
+  data-duration-seconds={timing.durationSeconds ?? ''} data-timing-valid={timing.valid ? 'yes':'no'}
+  data-reference-bpm={song.data.bpm ?? ''} data-song-id={song.id}>
   <div class="performance-shell">
     <header class="performance-header">
       <button type="button" class="performance-exit" id="performance-exit" aria-label="Salir del modo escenario">
@@ -186,6 +187,9 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <div class="performance-heading">
         <strong id="performance-heading">{song.data.title}</strong>
         <span>{song.data.artist}</span>
+      </div>
+      <div class="performance-beat-meter" id="performance-beat-meter" role="img" aria-label="Pulso visual de cuatro tiempos">
+        {[1,2,3,4].map(beat => <span class="performance-beat" data-beat={beat} aria-hidden="true">{beat}</span>)}
       </div>
       <button type="button" class="performance-toggle-controls" id="performance-toggle-controls" aria-pressed="true" aria-label="Mostrar u ocultar los controles">Ocultar controles</button>
     </header>
@@ -215,13 +219,14 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <div class="performance-compact-bar">
       <div class="performance-status">
         <span id="performance-status" aria-live="polite">Listo para cantar</span>
+        <span id="performance-bpm-mini" class="performance-bpm-mini">80 BPM</span>
         <span id="performance-progress" aria-live="off">0%</span>
       </div>
       <p id="performance-no-scroll" class="performance-no-scroll" hidden>La canción cabe en la pantalla. No necesitás desplazamiento automático.</p>
       <div class="performance-play-row">
-        <button type="button" class="performance-speed-button" id="performance-slower" aria-label="Desplazamiento más lento"><Minus size={22} aria-hidden="true" /></button>
+        <button type="button" class="performance-speed-button" id="performance-slower" aria-label="Disminuir tempo en BPM"><Minus size={22} aria-hidden="true" /></button>
         <button type="button" class="performance-play" id="performance-play">▶ Iniciar</button>
-        <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Desplazamiento más rápido"><Plus size={22} aria-hidden="true" /></button>
+        <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Aumentar tempo en BPM"><Plus size={22} aria-hidden="true" /></button>
       </div>
       <button type="button" id="performance-settings-toggle" class="performance-settings-toggle"
         aria-expanded="false" aria-controls="performance-settings" aria-label="Abrir ajustes de escenario" title="Ajustes de escenario">
@@ -270,7 +275,16 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         </select>
         <ChevronDown class="performance-duration-chevron" size={17} aria-hidden="true" />
         </span>
-        <span class="performance-speed-label">Velocidad <strong id="performance-speed">1×</strong></span>
+        <span class="performance-speed-label">Ritmo <strong id="performance-speed">80 BPM</strong></span>
+      </div>
+      <div class="performance-tempo-panel" role="group" aria-label="Ritmo en pulsos por minuto">
+        <div class="performance-tempo-heading">
+          <span>Ritmo</span>
+          <strong id="performance-tempo-value">80 BPM</strong>
+        </div>
+        <p id="performance-tempo-hint">BPM guía. Podés marcar el pulso si no conocés el tempo.</p>
+        <button type="button" class="performance-tap-tempo" id="performance-tap-tempo">Marcar pulso</button>
+        <small id="performance-tap-status" role="status" aria-live="polite">Tocá 4 veces al ritmo de la canción.</small>
       </div>
       <div class="performance-extras">
         <div class="performance-font-row" role="group" aria-label="Tamaño de letra">

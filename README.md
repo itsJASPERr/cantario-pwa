@@ -184,3 +184,16 @@ To reduce false INTERLUDIO predictions in partially timed songs, Cantario only i
 Both the song library and individual song pages show an **Instalar** button in the top header (hidden in standalone/PWA mode). The button uses the browser's native install prompt if \`beforeinstallprompt\` is available and valid. On iOS, where that event generally isn't available, a small dialog explains how to **open Cantario in Safari → Share → Add to Home Screen → Add**. Android and desktop browsers without an available native prompt receive manual browser menu instructions instead. The button never claims installation succeeded until an installation event confirms it. A browser embedded inside another app may not support installing; open the site in Safari or Chrome.
 
 The PWA already has a manifest and offline service-worker cache. The install control only improves discoverability; some browsers may decline to install if their platform requirements are not satisfied. Saved recordings still require their separate offline-storage action.
+
+
+## Visual BPM pulse + tap tempo (GitHub issue #8)
+
+Pages CMS songs may optionally set **Tempo de referencia (BPM)** (integer 40–240). This is metadata, not musical analysis; there is no server, microphone or audio playback dependency.
+
+In Modo Escenario, four numbered beat markers pulse in the header. The existing − / + controls now operate in **2 BPM** increments; the selected BPM is shown in the compact mobile bar and settings. On a song with an authored BPM, the timeline runs at **selected BPM / song BPM** while preserving the source lyric timestamps; e.g. 90 BPM from a reference 80 BPM runs its timeline at 1.125×.
+
+If you **don't know the BPM**, use **Marcar pulso** in settings: tap at least four regular beats (optionally continue), and Cantario estimates a BPM from the intervals locally, without requesting microphone access. For songs with no authored BPM, the initial **~80 BPM** is explicitly provisional, not detected. The first tap result becomes that song's reference tempo for the local device; it is not committed to Pages CMS. You can later add the measured BPM in CMS. Manually changing the unknown guide BPM is also possible but remains an estimate. Selected BPM is stored per song in localStorage.
+
+When BPM is established via CMS, tapping or manual adjustment, the optional pre-start countdown becomes **1–2–3–4** at the selected beat interval. Without a known tempo, the original three-second countdown remains. Four beats are a visual pulse guide, **not** proof of meter, beat-one alignment, or whether a song is in 4/4. Different meters and accurate beat-phase calibration can be added after field testing.
+
+Continuous mode, untimed songs, the existing visual INTRO / INTERLUDIO cues, manual scrolling, offline caching and the compact mobile control bar all remain supported.

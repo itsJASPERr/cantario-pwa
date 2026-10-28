@@ -63,6 +63,10 @@ content:
           categories: [audio]
           extensions: [mp3, m4a, ogg, wav, webm]
           rename: safe
+      - name: bpm
+        label: Tempo de referencia (BPM)
+        type: number
+        description: 'Opcional. Pulsos por minuto (40–240). Si no lo sabés, usá Marcar pulso en Modo Escenario. El BPM solo da una referencia: no se deduce de las letras.'
       - name: duration_mmss
         label: Duración de referencia (mm:ss)
         type: string

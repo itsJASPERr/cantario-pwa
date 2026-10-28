@@ -145,3 +145,12 @@ test('interlude prediction is suppressed for long gaps within the same stanza',(
  assert.equal(liveCueAt(times,44,{timed:true,interludeStarts:[63]}).kind,'interlude');
  assert.equal(liveCueAt(times,63,{timed:true,interludeStarts:[63]}).kind,'now');
 });
+
+
+test('BPM count-in renders four musical beats when authored BPM is present',()=>{
+ for(let beat=1;beat<=4;beat++){
+   const cue=liveCueAt([],0,{timed:false,state:'countdown',beatCountIn:true,countInBeat:beat});
+   assert.equal(cue.value,String(beat));
+   assert.equal(cue.label,'PULSO DE ENTRADA');
+ }
+});

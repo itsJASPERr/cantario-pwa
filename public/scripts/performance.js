@@ -1,3 +1,4 @@
+import {normalizeBpm,changeBpm,tempoMultiplier,addTempoTap,visualBeat,DEFAULT_GUIDE_BPM,BPM_STEP} from './tempo-core.mjs';
 import {
   normalizeDuration, normalizeSpeed, maxScrollDistance, scrollRate,
   advanceScroll, progressPercent, MIN_SPEED, MAX_SPEED, SPEED_STEP,
@@ -19,6 +20,13 @@ import {
   const status = document.getElementById('performance-status');
   const progress = document.getElementById('performance-progress');
   const speedLabel = document.getElementById('performance-speed');
+  const bpmMini = document.getElementById('performance-bpm-mini');
+  const tempoValue = document.getElementById('performance-tempo-value');
+  const tempoHint = document.getElementById('performance-tempo-hint');
+  const tapButton = document.getElementById('performance-tap-tempo');
+  const tapStatus = document.getElementById('performance-tap-status');
+  const beatMeter = document.getElementById('performance-beat-meter');
+  const beatDots = [...(beatMeter?.querySelectorAll('[data-beat]') || [])];
   const duration = document.getElementById('performance-duration');
   const speedDown = document.getElementById('performance-slower');
   const speedUp = document.getElementById('performance-faster');
@@ -43,6 +51,8 @@ import {
   const continuousDuration = document.getElementById('performance-continuous-duration');
   const canonicalDuration = Number(dialog.dataset.durationSeconds);
   const timingValid = dialog.dataset.timingValid === 'yes';
+  const cmsBpm = normalizeBpm(dialog.dataset.referenceBpm);
+  const tempoKey = 'cantario:performance:tempo:' + encodeURIComponent(dialog.dataset.songId || 'song') + ':v1';
   const mobileControls = window.matchMedia('(max-width: 700px), (max-height: 500px) and (max-width: 950px)');
 
   const KEY = {
@@ -91,6 +101,13 @@ import {
   let timedLines = [];
   let activeLine = null;
   let manualPositionChanged = false;
+  let referenceBpm = cmsBpm || DEFAULT_GUIDE_BPM;
+  let currentBpm = referenceBpm;
+  let tempoSource = cmsBpm ? 'cms' : 'guide';
+  let tempoTaps = [];
+  let beatAnchor = 0;
+  let countInBeat = 1;
+  let beatCountIn = false;
   let lastCueSignature = '';
 
   function isMobileControls() {
@@ -223,6 +240,8 @@ import {
       timed:mode === 'timed' && Boolean(timedTrack),
       state,
       countdownRemaining,
+      beatCountIn,
+      countInBeat,
       interludeStarts:timedLines.filter((line,i) => i > 0 &&
         line.element.closest('p') !== timedLines[i-1].element.closest('p'))
         .map(line => line.time)
@@ -244,12 +263,24 @@ import {
     cueElement.hidden = false;
     lastCueSignature = signature;
   }
+  function updateBeatMeter() {
+    const bpm = currentBpm;
+    if (!beatMeter || !bpm) return;
+    const currentClock = mode === 'timed' && timedTrack ? songClock : elapsedSeconds;
+    const beat = state === 'countdown' && beatCountIn
+      ? countInBeat
+      : visualBeat(currentClock,mode === 'timed' && timedTrack ? referenceBpm : bpm,beatAnchor)?.beat || 1;
+    beatMeter.dataset.activeBeat = String(beat);
+    beatMeter.classList.toggle('is-running',state === 'playing' || (state === 'countdown' && beatCountIn));
+    for(const dot of beatDots) dot.classList.toggle('is-active',Number(dot.dataset.beat) === beat);
+  }
   function updateProgress() {
+    updateBeatMeter();
     updateLiveCue();
     const distance = physicalDistance();
     const value = distance ? progressPercent(scroll.scrollTop, distance) : 100;
     progress.textContent = state === 'countdown'
-      ? countdownRemaining + '…'
+      ? (beatCountIn ? countInBeat+'/4' : countdownRemaining+'…')
       : mode === 'timed' && timedTrack
       ? clockText(songClock) + ' / ' + clockText(timedTrack.duration)
       : distance ? value + '% · ' + clockText(elapsedSeconds) : 'Todo visible';
@@ -336,22 +367,34 @@ import {
   }
   function beginCountdown() {
     state = 'countdown';
-    countdownRemaining = 3;
-    const deadline = performance.now() + 3000;
-    setStatus('Comenzamos en 3…');
+    // Only call it a musical count-in once the BPM was supplied or tapped.
+    // Otherwise keep the familiar 3-second neutral countdown.
+    beatCountIn=tempoSource !== 'guide';
+    countInBeat=1;
+    countdownRemaining=3;
+    const started=performance.now();
+    const beatLength=60000/currentBpm;
+    const length=beatCountIn ? beatLength*4 : 3000;
+    setStatus(beatCountIn?'Pulso de entrada: 1 / 4':'Comenzamos en 3…');
     syncPlay();
     countdownTimer = setInterval(() => {
       if (!dialog.open || state !== 'countdown') { cancelCountdown(); return; }
-      const left = Math.ceil((deadline - performance.now()) / 1000);
-      if (left <= 0) {
+      const passed=performance.now()-started;
+      if (passed >= length) {
         cancelCountdown();
+        beatAnchor=mode === 'timed' && timedTrack ? songClock : elapsedSeconds;
         beginPlaying();
       } else {
-        countdownRemaining = left;
-        setStatus('Comenzamos en ' + left + '…');
+        if (beatCountIn) {
+          countInBeat=Math.min(4,Math.floor(passed/beatLength)+1);
+          setStatus('Pulso de entrada: '+countInBeat+' / 4');
+        } else {
+          countdownRemaining=Math.max(1,Math.ceil((length-passed)/1000));
+          setStatus('Comenzamos en '+countdownRemaining+'…');
+        }
         updateProgress();
       }
-    }, 80);
+    }, 50);
   }
   function onPlay() {
     // Playing or resuming always returns to the unobstructed mobile lyrics view.
@@ -373,12 +416,69 @@ import {
     duration.value = String(durationSeconds);
     save(KEY.duration, durationSeconds);
   }
-  function setMultiplier(number) {
-    multiplier = normalizeSpeed(number);
-    save(KEY.speed, multiplier);
-    speedLabel.textContent = Number.isInteger(multiplier) ? multiplier + '×' : multiplier.toFixed(2).replace(/0$/, '') + '×';
-    speedDown.disabled = multiplier <= MIN_SPEED;
-    speedUp.disabled = multiplier >= MAX_SPEED;
+  function writeTempo() {
+    multiplier = tempoMultiplier(currentBpm,referenceBpm);
+    save(KEY.speed,multiplier);
+    try {
+      localStorage.setItem(tempoKey,JSON.stringify({
+        selected:currentBpm,base:referenceBpm,source:tempoSource
+      }));
+    } catch {}
+    const label=(tempoSource === 'guide' ? '~' : '')+currentBpm+' BPM';
+    speedLabel.textContent=label;
+    if (bpmMini) bpmMini.textContent=label;
+    if (tempoValue) tempoValue.textContent=label;
+    if (tempoHint) tempoHint.textContent=tempoSource === 'cms'
+      ? 'BPM de referencia en CMS. Ajustá el ritmo en vivo con − / +.'
+      : tempoSource === 'tap'
+      ? 'Estimado por tus pulsaciones. Podés afinarlo con − / +.'
+      : 'BPM guía sin referencia musical confirmada. Marcá el pulso para calibrarlo.';
+    speedDown.disabled=changeBpm(currentBpm,-BPM_STEP,referenceBpm)===currentBpm;
+    speedUp.disabled=changeBpm(currentBpm,BPM_STEP,referenceBpm)===currentBpm;
+    updateBeatMeter();
+  }
+  function loadTempo() {
+    const oldSpeed=normalizeSpeed(read(KEY.speed,1));
+    const fallbackBase=cmsBpm||DEFAULT_GUIDE_BPM;
+    let saved=null;
+    try { saved=JSON.parse(localStorage.getItem(tempoKey)||'null'); } catch {}
+    if (cmsBpm) {
+      referenceBpm=cmsBpm;
+      tempoSource='cms';
+    } else if (saved?.source === 'tap' && normalizeBpm(saved.base)) {
+      referenceBpm=saved.base;
+      tempoSource='tap';
+    } else {
+      referenceBpm=fallbackBase;
+      tempoSource=saved?.source === 'manual' ? 'manual' : 'guide';
+    }
+    const fallback=Math.round(referenceBpm*oldSpeed);
+    currentBpm=changeBpm(normalizeBpm(saved?.selected)||fallback,0,referenceBpm);
+    tempoTaps=[];
+    beatAnchor=0;
+    writeTempo();
+    if (tapStatus) tapStatus.textContent='Tocá 4 veces al ritmo de la canción.';
+  }
+  function changeTempo(delta) {
+    currentBpm=changeBpm(currentBpm,delta,referenceBpm);
+    if (tempoSource === 'guide') tempoSource='manual';
+    writeTempo();
+  }
+  function tapTempo() {
+    const result=addTempoTap(tempoTaps,performance.now());
+    tempoTaps=result.taps;
+    if (result.bpm) {
+      if (!cmsBpm) {
+        referenceBpm=result.bpm;
+        tempoSource='tap';
+      }
+      currentBpm=changeBpm(result.bpm,0,referenceBpm);
+      beatAnchor=mode === 'timed' && timedTrack ? songClock : elapsedSeconds;
+      writeTempo();
+      if (tapStatus) tapStatus.textContent=result.bpm+' BPM calculados. Podés seguir marcando para ajustar.';
+    } else if (tapStatus) {
+      tapStatus.textContent='Pulsos: '+tempoTaps.length+'/4 · seguí marcando.';
+    }
   }
   function setFont(value) {
     fontSize = Math.min(32, Math.max(12, Number(value) || 20));
@@ -498,7 +598,7 @@ import {
     setChords(chordsVisible);
     durationSeconds = normalizeDuration(read(KEY.duration,210));
     duration.value = String(durationSeconds);
-    setMultiplier(read(KEY.speed,1));
+    loadTempo();
     setCountdown(read(KEY.countdown,'yes') !== 'no');
     rebuildTimedTrack();
     mode = timingValid && timedTrack && read(KEY.mode,'timed') !== 'continuous' ? 'timed' : 'continuous';
@@ -538,11 +638,13 @@ import {
     lastCueSignature = '';
     if (activeLine) activeLine.classList.remove('is-current');
     activeLine = null;
+    beatCountIn=false;
     if (previousFocus?.isConnected) previousFocus.focus();
   });
   play.addEventListener('click', onPlay);
-  speedDown.addEventListener('click', () => setMultiplier(multiplier - SPEED_STEP));
-  speedUp.addEventListener('click', () => setMultiplier(multiplier + SPEED_STEP));
+  speedDown.addEventListener('click', () => changeTempo(-BPM_STEP));
+  speedUp.addEventListener('click', () => changeTempo(BPM_STEP));
+  tapButton?.addEventListener('click',tapTempo);
   duration.addEventListener('change', () => setDuration(duration.value));
   modeSelect?.addEventListener('change', () => setMode(modeSelect.value));
   fontDown.addEventListener('click', () => setFont(fontSize - 2));
