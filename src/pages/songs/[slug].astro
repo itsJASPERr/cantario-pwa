@@ -72,6 +72,13 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
       <a class="song-edit-link song-edit-primary" href={editSongUrl} target="_blank" rel="noopener noreferrer">Editar canción <span aria-hidden="true">↗</span></a>
       <a class="song-create-link" href={newSongUrl} target="_blank" rel="noopener noreferrer">+ Nueva canción</a>
     </nav>
+    <div class="performance-launch-row">
+      <button type="button" id="performance-enter" class="performance-launch" aria-haspopup="dialog">
+        <span aria-hidden="true">▶</span>
+        <span>Modo Escenario</span>
+        <span class="performance-launch-note">Lectura automática y manos libres</span>
+      </button>
+    </div>
     <section class="reader-controls" aria-label="Opciones de lectura">
       <div class="reader-list-actions"><button type="button" class="song-list-button" data-manage-lists={song.id} data-song-title={song.data.title}>+ Agregar a listas</button>
       <button type="button" id="favorite" class="reader-favorite" aria-pressed="false"><span id="favorite-heart">♡</span> <span id="favorite-label">Guardar favorita</span></button></div>
@@ -144,6 +151,8 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
     }
     document.getElementById('font-down').addEventListener('click', () => setSize(fontSize - 2));
     document.getElementById('font-up').addEventListener('click', () => setSize(fontSize + 2));
+    window.addEventListener('cantario:performance:font', event => setSize(event.detail));
+    window.addEventListener('cantario:performance:chords', event => setChordVisibility(Boolean(event.detail)));
     setSize(fontSize);
   </script>
 <dialog id="song-lists-dialog" class="lists-dialog" aria-labelledby="manage-song-title">
@@ -158,4 +167,77 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
 </dialog>
 <script type="module" src={base + 'scripts/lists-ui.js'}></script>
 <script type="module" src={base + 'scripts/audio-offline.js'}></script>
+
+<dialog class="performance-dialog" id="performance-dialog" aria-labelledby="performance-heading" aria-modal="true">
+  <div class="performance-shell">
+    <header class="performance-header">
+      <button type="button" class="performance-exit" id="performance-exit" aria-label="Salir del modo escenario">
+        <span aria-hidden="true">←</span> Salir
+      </button>
+      <div class="performance-heading">
+        <strong id="performance-heading">{song.data.title}</strong>
+        <span>{song.data.artist}</span>
+      </div>
+      <button type="button" class="performance-toggle-controls" id="performance-toggle-controls" aria-pressed="true" aria-label="Mostrar u ocultar los controles">Ocultar controles</button>
+    </header>
+
+    <section class="performance-scroll" id="performance-scroll" tabindex="0" aria-label="Letra de la canción en modo escenario. Deslizá para pausar el desplazamiento automático.">
+      <div class="performance-lead">
+        <p>♫ CANTARIO · MODO ESCENARIO</p>
+        <h2>{song.data.title}</h2>
+        <span>{song.data.artist}</span>
+      </div>
+      <article class="performance-lyrics-area" aria-label="Letra para cantar">
+        <div id="performance-lyrics" class={'lyrics' + (hasChords ? ' show-chords' : '')}><Content /></div>
+      </article>
+      <div class="performance-endmark" id="performance-endmark" aria-hidden="true">✳</div>
+      <div class="performance-tail" aria-hidden="true"></div>
+    </section>
+
+    <footer class="performance-controls" aria-label="Controles de escenario">
+      <div class="performance-status">
+        <span id="performance-status" aria-live="polite">Listo para cantar</span>
+        <span id="performance-progress" aria-live="off">0%</span>
+      </div>
+      <p id="performance-no-scroll" class="performance-no-scroll" hidden>La canción cabe en la pantalla. No necesitás desplazamiento automático.</p>
+      <div class="performance-play-row">
+        <button type="button" class="performance-speed-button" id="performance-slower" aria-label="Desplazamiento más lento">−</button>
+        <button type="button" class="performance-play" id="performance-play">▶ Iniciar</button>
+        <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Desplazamiento más rápido">+</button>
+      </div>
+      <div class="performance-timing">
+        <label for="performance-duration">Duración</label>
+        <select id="performance-duration" aria-label="Duración aproximada de desplazamiento">
+          <option value="60">1:00</option>
+          <option value="90">1:30</option>
+          <option value="120">2:00</option>
+          <option value="150">2:30</option>
+          <option value="180">3:00</option>
+          <option value="210" selected>3:30</option>
+          <option value="240">4:00</option>
+          <option value="270">4:30</option>
+          <option value="300">5:00</option>
+          <option value="360">6:00</option>
+          <option value="420">7:00</option>
+          <option value="480">8:00</option>
+          <option value="600">10:00</option>
+          <option value="900">15:00</option>
+          <option value="1200">20:00</option>
+          <option value="1800">30:00</option>
+        </select>
+        <span class="performance-speed-label">Velocidad <strong id="performance-speed">1×</strong></span>
+      </div>
+      <div class="performance-extras">
+        <div class="performance-font-row" role="group" aria-label="Tamaño de letra">
+          <button type="button" id="performance-font-down" aria-label="Reducir tamaño de letra">A−</button>
+          <button type="button" id="performance-font-up" aria-label="Aumentar tamaño de letra">A+</button>
+        </div>
+        <button type="button" id="performance-chords" aria-pressed="true" disabled={!hasChords} hidden={!hasChords}>♫ Acordes: sí</button>
+        <button type="button" id="performance-countdown" aria-pressed="true">◷ Inicio: 3 s</button>
+        <button type="button" id="performance-wake" aria-pressed="true" aria-label="Mantener pantalla activa"><span id="performance-wake-label">☼ Pantalla activa</span></button>
+      </div>
+    </footer>
+  </div>
+</dialog>
+<script type="module" src={base + 'scripts/performance.js'}></script>
 </BaseLayout>

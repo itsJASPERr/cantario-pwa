@@ -99,3 +99,22 @@ Chord pills sit **1.3em above their character anchor**, providing more separatio
 - Long individual lines still wrap on narrow screens. Lines containing chords use extra line-height on all visual wraps so pills have room; unusual strings of tightly packed chords may still overlap.
 
 For predictable chord placement on mobile, write one musical phrase per Markdown source line rather than putting an entire verse on a single line. This enhancement does not change or rewrite any saved lyrics.
+
+
+## Modo Escenario · offline performance scrolling (v0.3)
+
+Open any song and choose **▶ Modo Escenario**. Cantario opens an immersive dark performance reader. The song is already present in the PWA's offline bundle; no backend or external service is necessary.
+
+- **▶ Iniciar** starts with an optional three-second countdown (enabled by default).
+- **Ⅱ Pausar / ▶ Continuar** stops and resumes at the same exact line.
+- **− / +** changes the rate from 0.5× to 2.5× in 0.25× increments while scrolling.
+- Choose an approximate **Duración** for the full scroll; default is 3:30.
+- **A− / A+**, **♫ Acordes**, and a compact dark performance theme are shared with the normal reader.
+- **☼ Pantalla activa** requests a Screen Wake Lock when supported and reports if it was denied or released.
+- Swiping, using the scroll wheel or keyboard scrolling pauses automatic movement immediately. Tap empty lyric space to toggle the bottom controls.
+- The scroll stops at the last readable lines and never automatically switches to another song.
+- Exiting or hiding the app pauses and cleans up the scrolling engine and wake lock.
+
+Duration, speed, countdown and wake-lock preferences are stored locally on the device; font size and chord visibility use the same settings as the ordinary reader. The feature works offline after the updated PWA has been loaded. On iOS, screen wake lock depends on browser / OS support and may not be available. Browser storage and cached offline assets are not guaranteed permanent.
+
+Performance mode bases its speed on the actual scrollable height, adapting to font-size changes, chord visibility, browser resizing and long song content. Short songs that are fully visible do not scroll. Long individual lyric lines may wrap, and tightly placed chord pills can still overlap.
