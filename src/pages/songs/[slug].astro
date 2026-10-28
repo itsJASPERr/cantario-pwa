@@ -12,7 +12,7 @@ interface Props { song: CollectionEntry<'songs'> }
 const {song} = Astro.props;
 const {Content} = await render(song);
 const hasChords = hasChordTokens(song.body || '');
-const timing = inspectSongTiming(song.body || '',song.data.duration_seconds);
+const timing = inspectSongTiming(song.body || '', song.data.duration_mmss || song.data.duration_seconds);
 const formatTime = (seconds: number) => String(Math.floor(seconds / 60)).padStart(2,'0') + ':' + String(Math.floor(seconds % 60)).padStart(2,'0');
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const cmsSongs = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main/collection/songs';

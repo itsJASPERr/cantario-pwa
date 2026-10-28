@@ -19,8 +19,27 @@ export function parseTimePrefix(line) {
   return {milliseconds: (min*60 + sec)*1000 + centis*10, length: match[0].length};
 }
 
-export function inspectSongTiming(markdown, durationSeconds) {
-  const duration = Number(durationSeconds);
+/**
+ * Duration is authored in Pages CMS as mm:ss, e.g. "04:52".
+ * Numeric seconds are accepted only for previously stored song metadata.
+ * Reject malformed text instead of silently treating it as 0 seconds.
+ */
+export function parseSongDuration(value) {
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value > 0 && value <= 3600 ? value : null;
+  }
+  if (typeof value !== 'string') return null;
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+  const total = minutes * 60 + seconds;
+  if (seconds > 59 || total <= 0 || total > 3600) return null;
+  return total;
+}
+
+export function inspectSongTiming(markdown, durationInput) {
+  const duration = parseSongDuration(durationInput);
   const markers = [];
   let invalid = false;
   for (const [index,line] of String(markdown || '').split(/\r?\n/).entries()) {
@@ -28,7 +47,7 @@ export function inspectSongTiming(markdown, durationSeconds) {
     if (parsed) markers.push({line:index+1, milliseconds:parsed.milliseconds});
     else if (TIME_LIKE.test(line) || /^\s*\[\d{1,2}:\d{2}/.test(line)) invalid = true;
   }
-  const validDuration = Number.isFinite(duration) && duration > 0 && duration <= 3600;
+  const validDuration = duration !== null;
   let previous = -1;
   for (const marker of markers) {
     if (marker.milliseconds <= previous || (validDuration && marker.milliseconds >= duration*1000)) invalid = true;

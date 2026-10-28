@@ -63,10 +63,10 @@ content:
           categories: [audio]
           extensions: [mp3, m4a, ogg, wav, webm]
           rename: safe
-      - name: duration_seconds
-        label: Duración de referencia (segundos)
-        type: number
-        description: 'Opcional. Ej. 225 para 3:45. Se usa con marcas [mm:ss.xx] para sincronizar el desplazamiento. Sin marcas, sigue el modo continuo.'
+      - name: duration_mmss
+        label: Duración de referencia (mm:ss)
+        type: string
+        description: 'Opcional. Escribí 03:45 para 3 minutos y 45 segundos (mm:ss). Se usa con las marcas [mm:ss.xx] de cada línea. Sin tiempos válidos se usa Continuo.'
       - name: body
         label: Letra
         type: rich-text

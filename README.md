@@ -141,7 +141,7 @@ The performance settings use Lucide's Astro SVG icons (`@lucide/astro`), includi
 
 ## v0.4 — Line-timed live scrolling (GitHub Issues #1/#2)
 
-In Pages CMS **Canciones**, optionally fill in **Duración de referencia (segundos)**, e.g. `225` for 3:45. In **Letra → Source**, add LRC-style timestamps at the **beginning of a sung line**, before any chords:
+In Pages CMS **Canciones**, optionally fill in **Duración de referencia (mm:ss)**, e.g. `03:45` for 3 minutes 45 seconds. In **Letra → Source**, add LRC-style timestamps at the **beginning of a sung line**, before any chords:
 
 
 ```text
@@ -161,3 +161,6 @@ This is a fixed rehearsal reference, not automatic listening or microphone detec
 
 
 The synchronized reader subtly highlights the currently timed lyric line as the live clock passes each authored timestamp; this highlight is independent of the two-second read-ahead used for scrolling and never appears in Continuous mode.
+
+### CMS duration field update
+The song duration is now a plain text field named `duration_mmss` with format **mm:ss**, such as `04:52` or `02:25`. Pages CMS displays **Duración de referencia (mm:ss)**. The synchronized performance engine parses the value into seconds internally. Existing demo and user song durations were converted without touching their lyrics. Previous `duration_seconds` values remain supported for older files that haven't been migrated. Incorrect values safely disable Synchronized mode for that song; Continuous mode remains available. Use a two-digit seconds component (for example `03:05`, not `3:5`).

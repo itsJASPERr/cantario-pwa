@@ -2,7 +2,7 @@
 title: El camino respira
 artist: Cantario · Demo
 language: es
-duration_seconds: 145
+duration_mmss: '02:25'
 tags:
   - canto
   - camino

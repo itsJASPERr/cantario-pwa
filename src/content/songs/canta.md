@@ -4,7 +4,7 @@ artist: Lucas Alberti
 language: es
 tags:
   - medicina
-duration_seconds: 292
+duration_mmss: '04:52'
 ---
 [00:26.24]Ama, vive, ríe, sueña, danza  
 [00:35.81]Ama, vive, ríe, sueña, danza  

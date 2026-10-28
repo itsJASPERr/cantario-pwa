@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseTimePrefix,inspectSongTiming} from '../src/lib/song-timing.mjs';
+import {parseTimePrefix,inspectSongTiming,parseSongDuration} from '../src/lib/song-timing.mjs';
 import rehypeChords from '../src/lib/rehype-chords.mjs';
 import rehypeLyricLines from '../src/lib/rehype-lyric-lines.mjs';
 
@@ -47,4 +47,24 @@ import {stripSongTimeTokens} from '../src/lib/song-timing.mjs';
 test('library search ignores timing tokens without hiding lyric words or chords',()=>{
  assert.equal(stripSongTimeTokens('[00:18.00][Am]Camino\n[00:23]al sol'),
   '[Am]Camino\nal sol');
+});
+
+
+test('CMS mm:ss durations convert to seconds without losing precision',()=>{
+ assert.equal(parseSongDuration('04:52'),292);
+ assert.equal(parseSongDuration('02:25'),145);
+ assert.equal(parseSongDuration('3:45'),225);
+ assert.equal(parseSongDuration('00:45'),45);
+ assert.equal(parseSongDuration('60:00'),3600);
+ assert.equal(parseSongDuration(292),292); // legacy numeric duration
+});
+test('invalid CMS time strings fall back safely instead of breaking the build',()=>{
+ for(const value of ['','225','3:5','03:60','00:00','99:59','abc','-01:20',undefined,null]){
+   assert.equal(parseSongDuration(value),null);
+ }
+ const text='[00:10.00]Inicio\n[00:15.00]Siguiente';
+ assert.equal(inspectSongTiming(text,'00:20').valid,true);
+ assert.equal(inspectSongTiming(text,20).valid,true);
+ assert.equal(inspectSongTiming(text,'garbage').valid,false);
+ assert.equal(inspectSongTiming(text,'00:14').valid,false);
 });
