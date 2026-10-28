@@ -143,6 +143,9 @@ const searchIndex = songs.map(song => ({
     if (event.detail.selected) {
       filter = 'all';
       updateFilterTabs(null);
+    } else if (event.detail.resetMode) {
+      filter = 'all';
+      updateFilterTabs('all');
     } else if (filter === 'all') updateFilterTabs('all');
     draw();
   });
