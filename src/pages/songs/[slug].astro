@@ -195,6 +195,7 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
     </section>
 
     <footer class="performance-controls" aria-label="Controles de escenario">
+      <div class="performance-compact-bar">
       <div class="performance-status">
         <span id="performance-status" aria-live="polite">Listo para cantar</span>
         <span id="performance-progress" aria-live="off">0%</span>
@@ -205,6 +206,18 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         <button type="button" class="performance-play" id="performance-play">▶ Iniciar</button>
         <button type="button" class="performance-speed-button" id="performance-faster" aria-label="Desplazamiento más rápido">+</button>
       </div>
+      <button type="button" id="performance-settings-toggle" class="performance-settings-toggle"
+        aria-expanded="false" aria-controls="performance-settings" aria-label="Abrir ajustes de escenario" title="Ajustes de escenario">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M4 17h16M9 4v6M15 14v6"/>
+        </svg>
+      </button>
+      </div>
+      <div class="performance-settings" id="performance-settings" aria-label="Ajustes de escenario">
+        <div class="performance-settings-heading">
+          <strong>Ajustes de escenario</strong>
+          <button type="button" id="performance-settings-close" aria-label="Cerrar ajustes">⌄</button>
+        </div>
       <div class="performance-timing">
         <label for="performance-duration">Duración</label>
         <select id="performance-duration" aria-label="Duración aproximada de desplazamiento">
@@ -235,6 +248,7 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
         <button type="button" id="performance-chords" aria-pressed="true" disabled={!hasChords} hidden={!hasChords}>♫ Acordes: sí</button>
         <button type="button" id="performance-countdown" aria-pressed="true">◷ Inicio: 3 s</button>
         <button type="button" id="performance-wake" aria-pressed="true" aria-label="Mantener pantalla activa"><span id="performance-wake-label">☼ Pantalla activa</span></button>
+      </div>
       </div>
     </footer>
   </div>
