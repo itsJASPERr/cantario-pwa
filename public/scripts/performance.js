@@ -163,6 +163,12 @@ import {
       y:element.getBoundingClientRect().top - bounds.top + scroll.scrollTop - viewport*0.34
     }));
     timedTrack = makeTimedTrack(cues, canonicalDuration, total, 2);
+    // Re-anchor to the same musical time after resizing, changing fonts
+    // or switching chords; avoid a sudden jump on the next animation frame.
+    if (mode === 'timed' && timedTrack && state !== 'ready' && !manualPositionChanged) {
+      virtualPosition = timedPositionAt(timedTrack, songClock);
+      scroll.scrollTop = virtualPosition;
+    }
   }
   function syncModeDisplay() {
     const available = Boolean(timedTrack);

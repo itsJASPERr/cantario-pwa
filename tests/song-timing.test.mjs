@@ -41,3 +41,10 @@ test('timestamped lyrics without any chords still produce addressable lines',()=
  rehypeLyricLines()(tree);
  assert.deepEqual(tree.children[0].children.map(c=>c.properties['data-start-ms']),['1000','3000']);
 });
+
+
+import {stripSongTimeTokens} from '../src/lib/song-timing.mjs';
+test('library search ignores timing tokens without hiding lyric words or chords',()=>{
+ assert.equal(stripSongTimeTokens('[00:18.00][Am]Camino\n[00:23]al sol'),
+  '[Am]Camino\nal sol');
+});

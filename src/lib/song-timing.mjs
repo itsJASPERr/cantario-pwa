@@ -41,3 +41,9 @@ export function inspectSongTiming(markdown, durationSeconds) {
     : null;
   return {valid, reason, count:markers.length, durationSeconds:validDuration?duration:null, markers};
 }
+
+
+// Used by the library search index. Actual lyrics remain unchanged.
+export function stripSongTimeTokens(markdown) {
+  return String(markdown || '').replace(/(^|\r?\n)[ \t]*\[\d{1,2}:\d{2}(?:\.\d{1,2})?\]/g, '$1');
+}

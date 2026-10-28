@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { stripChordTokens } from '../lib/rehype-chords.mjs';
+import { stripSongTimeTokens } from '../lib/song-timing.mjs';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const cmsBase = 'https://app.pagescms.org/itsJASPERr/cantario-pwa/main';
 const newSongUrl = cmsBase + '/collection/songs/new';
@@ -19,7 +20,7 @@ const publishedLists = (await getCollection('lists')).map(list => ({
 })).sort((a,b) => a.name.localeCompare(b.name, 'es'));
 const searchIndex = songs.map(song => ({
   id: song.id, title: song.data.title, artist: song.data.artist,
-  language: song.data.language || '', tags: song.data.tags || [], body: stripChordTokens(song.body || '')
+  language: song.data.language || '', tags: song.data.tags || [], body: stripChordTokens(stripSongTimeTokens(song.body || ''))
 }));
 ---
 <BaseLayout>
