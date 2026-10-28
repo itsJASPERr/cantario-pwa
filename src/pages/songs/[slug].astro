@@ -1,0 +1,74 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+export async function getStaticPaths() {
+  const songs = await getCollection('songs');
+  return songs.map(song => ({params:{slug:song.id},props:{song}}));
+}
+interface Props { song: CollectionEntry<'songs'> }
+const {song} = Astro.props;
+const {Content} = await render(song);
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<BaseLayout title={song.data.title} description={'Letra de ' + song.data.title + ' — ' + song.data.artist + '. Disponible sin conexión en Cantario.'}>
+  <header class="topbar topbar-reading">
+    <a class="brand" href={base} aria-label="Cantario, inicio">
+      <img src={base + 'icon.svg'} alt="" width="42" height="42" />
+      <span class="brand-copy"><strong>cantario<span class="brand-dot">.</span></strong><small>tu cancionero vivo</small></span>
+    </a>
+    <a href={base} class="back-link">← Biblioteca</a>
+  </header>
+  <main class="reader">
+    <a class="breadcrumb" href={base}>← Volver a las canciones</a>
+    <section class="reader-top">
+      <span class="eyebrow eyebrow-olive">UNA CANCIÓN PARA LLEVAR</span>
+      <h1>{song.data.title}</h1><p>{song.data.artist}</p>
+      {song.data.tags && song.data.tags.length > 0 && <div class="reader-tags">{song.data.tags.map(tag => <span>{tag}</span>)}</div>}
+    </section>
+    <section class="reader-controls" aria-label="Opciones de lectura">
+      <button type="button" id="favorite" class="reader-favorite" aria-pressed="false"><span id="favorite-heart">♡</span> <span id="favorite-label">Guardar favorita</span></button>
+      <div class="font-controls"><span>Tamaño de letra</span>
+        <button type="button" id="font-down" aria-label="Reducir tamaño de letra">A−</button>
+        <button type="button" id="font-up" aria-label="Aumentar tamaño de letra">A+</button>
+      </div>
+    </section>
+    <article class="lyrics-paper" aria-label="Letra de la canción">
+      <div class="lyrics" id="lyrics"><Content /></div>
+      <div class="endmark" aria-hidden="true">✳</div>
+    </article>
+    <div class="reader-bottom"><a href={base}>← Volver al cancionero</a></div>
+  </main>
+  <footer class="footer"><span>cantario<span class="brand-dot">.</span></span><span>Un hogar para las canciones que nos acompañan.</span></footer>
+  <script define:vars={{songId: song.id}}>
+    const favoriteButton = document.getElementById('favorite');
+    const favoriteHeart = document.getElementById('favorite-heart');
+    const favoriteLabel = document.getElementById('favorite-label');
+    const lyrics = document.getElementById('lyrics');
+    const KEY = 'cantario:favorites:v1';
+    const SIZE_KEY = 'cantario:font-size:v1';
+    let favorites;
+    try { favorites = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { favorites = new Set(); }
+    const syncFavorite = () => {
+      const selected = favorites.has(songId);
+      favoriteButton.setAttribute('aria-pressed', String(selected));
+      favoriteHeart.textContent = selected ? '♥' : '♡';
+      favoriteLabel.textContent = selected ? 'Guardada en favoritas' : 'Guardar favorita';
+    };
+    favoriteButton.addEventListener('click', () => {
+      if (favorites.has(songId)) favorites.delete(songId); else favorites.add(songId);
+      try { localStorage.setItem(KEY, JSON.stringify([...favorites])); } catch {}
+      syncFavorite();
+    });
+    syncFavorite();
+    let fontSize = 20;
+    try { fontSize = Math.min(32, Math.max(16, Number(localStorage.getItem(SIZE_KEY) || 20) || 20)); } catch {}
+    function setSize(value) {
+      fontSize = Math.min(32, Math.max(16, value));
+      lyrics.style.setProperty('--lyric-size', String(fontSize) + 'px');
+      try { localStorage.setItem(SIZE_KEY, String(fontSize)); } catch {}
+    }
+    document.getElementById('font-down').addEventListener('click', () => setSize(fontSize - 2));
+    document.getElementById('font-up').addEventListener('click', () => setSize(fontSize + 2));
+    setSize(fontSize);
+  </script>
+</BaseLayout>

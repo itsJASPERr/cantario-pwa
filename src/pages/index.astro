@@ -1,0 +1,142 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const songs = (await getCollection('songs')).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title, 'es', { sensitivity: 'base' })
+);
+const artists = [...new Set(songs.map(song => song.data.artist))].sort((a,b) =>
+  a.localeCompare(b, 'es', { sensitivity: 'base' })
+);
+const searchIndex = songs.map(song => ({
+  id: song.id, title: song.data.title, artist: song.data.artist,
+  language: song.data.language || '', tags: song.data.tags || [], body: song.body || ''
+}));
+---
+<BaseLayout>
+<header class="topbar">
+  <a class="brand" href={base} aria-label="Cantario, inicio">
+    <img src={base + 'icon.svg'} alt="" width="42" height="42" />
+    <span class="brand-copy"><strong>cantario<span class="brand-dot">.</span></strong><small>tu cancionero vivo</small></span>
+  </a>
+  <div class="topbar-actions"><span id="connection" class="connection" title="Estado de conexión" aria-live="polite"><span aria-hidden="true">●</span> <span class="connection-label">Tu biblioteca, siempre cerca</span></span></div>
+</header>
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-shape hero-shape-one" aria-hidden="true"></div><div class="hero-shape hero-shape-two" aria-hidden="true"></div>
+    <span class="eyebrow">UN LUGAR PARA CANTAR</span>
+    <h1 id="hero-title">Tus canciones,<br /><em>siempre con vos.</em></h1>
+    <p>Un hogar para las canciones que nos acompañan. Abrí, leé, cantá. Incluso sin internet.</p>
+    <div class="hero-footer">
+      <span class="hero-stat"><strong>{songs.length}</strong> {songs.length === 1 ? 'canción' : 'canciones'}</span>
+      <span class="hero-separator"></span>
+      <span class="hero-stat"><strong>{artists.length}</strong> {artists.length === 1 ? 'artista' : 'artistas'}</span>
+    </div>
+  </section>
+  <section class="library" aria-label="Biblioteca de canciones">
+    <div class="section-header"><div><span class="eyebrow eyebrow-olive">TU BIBLIOTECA</span><h2>El cancionero</h2></div>
+      <a class="editor-link" href="https://app.pagescms.org/" target="_blank" rel="noopener noreferrer">Gestionar letras <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <label class="sr-only" for="search">Buscar canciones, artistas o letras</label>
+      <input id="search" type="search" placeholder="Buscar canción, artista o letra…" autocomplete="off" />
+      <span class="key-hint" aria-hidden="true">⌘ K</span>
+    </div>
+    <div class="filters">
+      <div class="filter-tabs" role="group" aria-label="Filtrar canciones">
+        <button type="button" class="filter-tab is-active" data-filter="all" aria-pressed="true">Todas <span class="tab-count">{songs.length}</span></button>
+        <button type="button" class="filter-tab" data-filter="favorites" aria-pressed="false">♡ Favoritas</button>
+      </div>
+      <label class="sr-only" for="artist-filter">Filtrar por artista</label>
+      <select class="artist-select" id="artist-filter"><option value="">Todos los artistas</option>
+        {artists.map(artist => <option value={artist}>{artist}</option>)}
+      </select>
+    </div>
+    <div class="list-heading"><span>CANCIONES</span><span id="result-count" aria-live="polite">{songs.length} resultados</span></div>
+    <div class="song-list" id="song-list">
+      {songs.map((song, index) => (
+        <article class="song-card" data-id={song.id}>
+          <a class="song-card-main" href={base + 'songs/' + encodeURIComponent(song.id) + '/'}>
+            <span class="song-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <span class="song-details"><strong>{song.data.title}</strong><span>{song.data.artist}</span></span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </a>
+          <button type="button" class="favorite-button" data-favorite={song.id} aria-label={'Agregar ' + song.data.title + ' a favoritas'} aria-pressed="false" title="Guardar como favorita">♡</button>
+        </article>
+      ))}
+    </div>
+    <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">♫</span><strong>No encontramos canciones</strong><p>Probá otro término o cambiá los filtros.</p></div>
+    <div class="library-note"><span aria-hidden="true">✳</span> Instalá Cantario desde tu navegador para tener tu biblioteca disponible sin conexión después de la primera carga.</div>
+  </section>
+</main>
+<footer class="footer"><span>cantario<span class="brand-dot">.</span></span><span>Canciones para llevar, cantar y compartir.</span></footer>
+<script define:vars={{searchIndex}}>
+  const input = document.getElementById('search');
+  const artistSelect = document.getElementById('artist-filter');
+  const tabs = [...document.querySelectorAll('[data-filter]')];
+  const cards = [...document.querySelectorAll('.song-card')];
+  const count = document.getElementById('result-count');
+  const empty = document.getElementById('empty-state');
+  const connection = document.getElementById('connection');
+  const KEY = 'cantario:favorites:v1';
+  const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+  let favorites;
+  try { favorites = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { favorites = new Set(); }
+  let filter = 'all';
+  const songMap = new Map(searchIndex.map(song => [song.id, song]));
+  function draw() {
+    const query = normalize(input.value.trim());
+    const artist = artistSelect.value;
+    let visible = 0;
+    for (const card of cards) {
+      const song = songMap.get(card.dataset.id);
+      const searchable = normalize([song.title, song.artist, song.language, song.tags.join(' '), song.body].join(' '));
+      const show = (!query || searchable.includes(query)) && (!artist || artist === song.artist) &&
+        (filter !== 'favorites' || favorites.has(song.id));
+      card.hidden = !show;
+      if (show) visible++;
+      const button = card.querySelector('[data-favorite]');
+      const selected = favorites.has(song.id);
+      button.textContent = selected ? '♥' : '♡';
+      button.setAttribute('aria-pressed', String(selected));
+      button.setAttribute('aria-label', (selected ? 'Quitar ' : 'Agregar ') + song.title + (selected ? ' de favoritas' : ' a favoritas'));
+    }
+    count.textContent = visible + (visible === 1 ? ' resultado' : ' resultados');
+    empty.hidden = visible !== 0;
+  }
+  input.addEventListener('input', draw);
+  artistSelect.addEventListener('change', draw);
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    filter = tab.dataset.filter;
+    tabs.forEach(button => {
+      const selected = button.dataset.filter === filter;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+    draw();
+  }));
+  document.querySelectorAll('[data-favorite]').forEach(button =>
+    button.addEventListener('click', () => {
+      const id = button.dataset.favorite;
+      if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+      try { localStorage.setItem(KEY, JSON.stringify([...favorites])); } catch {}
+      draw();
+    })
+  );
+  function updateConnection() {
+    if (!connection) return;
+    connection.classList.toggle('is-offline', !navigator.onLine);
+    connection.querySelector('.connection-label').textContent = navigator.onLine ? 'Tu biblioteca, siempre cerca' : 'Estás sin conexión';
+  }
+  window.addEventListener('online', updateConnection);
+  window.addEventListener('offline', updateConnection);
+  updateConnection();
+  document.addEventListener('keydown', event => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault(); input.focus();
+    }
+  });
+  draw();
+</script>
+</BaseLayout>
