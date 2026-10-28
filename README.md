@@ -197,3 +197,5 @@ If you **don't know the BPM**, use **Marcar pulso** in settings: tap at least fo
 When BPM is established via CMS, tapping or manual adjustment, the optional pre-start countdown becomes **1–2–3–4** at the selected beat interval. Without a known tempo, the original three-second countdown remains. Four beats are a visual pulse guide, **not** proof of meter, beat-one alignment, or whether a song is in 4/4. Different meters and accurate beat-phase calibration can be added after field testing.
 
 Continuous mode, untimed songs, the existing visual INTRO / INTERLUDIO cues, manual scrolling, offline caching and the compact mobile control bar all remain supported.
+
+To choose a specific tempo quickly, type a BPM between **40 and 240** into **BPM elegido** in Modo Escenario settings. The effective speed remains safety-limited to 0.5×–2.5× the song's reference BPM; the input and −/+ controls stay synchronized. **Marcar pulso** remains available when you don't know the BPM.

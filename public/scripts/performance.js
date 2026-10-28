@@ -24,6 +24,7 @@ import {
   const tempoValue = document.getElementById('performance-tempo-value');
   const tempoHint = document.getElementById('performance-tempo-hint');
   const tapButton = document.getElementById('performance-tap-tempo');
+  const bpmInput = document.getElementById('performance-bpm-input');
   const tapStatus = document.getElementById('performance-tap-status');
   const beatMeter = document.getElementById('performance-beat-meter');
   const beatDots = [...(beatMeter?.querySelectorAll('[data-beat]') || [])];
@@ -428,6 +429,7 @@ import {
     speedLabel.textContent=label;
     if (bpmMini) bpmMini.textContent=label;
     if (tempoValue) tempoValue.textContent=label;
+    if (bpmInput) bpmInput.value=String(currentBpm);
     if (tempoHint) tempoHint.textContent=tempoSource === 'cms'
       ? 'BPM de referencia en CMS. Ajustá el ritmo en vivo con − / +.'
       : tempoSource === 'tap'
@@ -645,6 +647,19 @@ import {
   speedDown.addEventListener('click', () => changeTempo(-BPM_STEP));
   speedUp.addEventListener('click', () => changeTempo(BPM_STEP));
   tapButton?.addEventListener('click',tapTempo);
+  bpmInput?.addEventListener('change', () => {
+    const value=normalizeBpm(bpmInput.value);
+    if (value === null) {
+      bpmInput.value=String(currentBpm);
+      if (tapStatus) tapStatus.textContent='Ingresá un BPM entre 40 y 240.';
+      return;
+    }
+    currentBpm=changeBpm(value,0,referenceBpm);
+    if (!cmsBpm) tempoSource='manual';
+    tempoTaps=[];
+    writeTempo();
+    if (tapStatus) tapStatus.textContent='Ritmo elegido: '+currentBpm+' BPM.';
+  });
   duration.addEventListener('change', () => setDuration(duration.value));
   modeSelect?.addEventListener('change', () => setMode(modeSelect.value));
   fontDown.addEventListener('click', () => setFont(fontSize - 2));

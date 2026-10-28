@@ -283,6 +283,10 @@ const publishedForSong = (await getCollection('lists')).filter(list => list.data
           <strong id="performance-tempo-value">80 BPM</strong>
         </div>
         <p id="performance-tempo-hint">BPM guía. Podés marcar el pulso si no conocés el tempo.</p>
+        <label class="performance-bpm-edit" for="performance-bpm-input">BPM elegido
+          <input type="number" id="performance-bpm-input" inputmode="numeric"
+            min="40" max="240" step="1" value="80" aria-label="Elegir pulsos por minuto" />
+        </label>
         <button type="button" class="performance-tap-tempo" id="performance-tap-tempo">Marcar pulso</button>
         <small id="performance-tap-status" role="status" aria-live="polite">Tocá 4 veces al ritmo de la canción.</small>
       </div>
