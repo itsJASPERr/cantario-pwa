@@ -63,11 +63,15 @@ content:
           categories: [audio]
           extensions: [mp3, m4a, ogg, wav, webm]
           rename: safe
+      - name: duration_seconds
+        label: Duración de referencia (segundos)
+        type: number
+        description: 'Opcional. Ej. 225 para 3:45. Se usa con marcas [mm:ss.xx] para sincronizar el desplazamiento. Sin marcas, sigue el modo continuo.'
       - name: body
         label: Letra
         type: rich-text
         required: true
-        description: 'En Source escribí [Am] justo antes de la letra o espacio donde empieza el acorde (ej. Ca[G]mino). Para indicaciones usá [*Suave]. Separá estrofas con una línea vacía. Guardá en Source para no alterar las marcas.'
+        description: 'En Source: [00:18.00][Am]Un paso, una huella, (inicio de línea cronometrado + acorde). Usá al menos dos tiempos crecientes, menores que Duración; las líneas sin tiempo quedan entre los puntos conocidos. Los acordes siguen usando [Am] y las indicaciones [*Suave]. Guardá en Source.'
         options:
           format: markdown
           switcher: true

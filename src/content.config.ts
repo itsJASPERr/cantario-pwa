@@ -13,7 +13,8 @@ const songs = defineCollection({
     spotify_url: optionalText,
     youtube_url: optionalText,
     shazam_url: optionalText,
-    recordings: z.union([z.array(z.string()), z.string()]).nullish()
+    recordings: z.union([z.array(z.string()), z.string()]).nullish(),
+    duration_seconds: z.number().int().positive().max(3600).nullish()
   })
 });
 const lists = defineCollection({
