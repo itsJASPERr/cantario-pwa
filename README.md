@@ -42,3 +42,20 @@ The PWA service worker is generated on production build. Test offline by buildin
 
 ## License and attribution
 The demo lyrics in `src/content/songs/` are original examples created for this starter project. Do not publish third-party song lyrics or arrangements unless you have the necessary rights or permission.
+
+## Song links and uploaded recordings
+
+Edit any song in **Pages CMS → Canciones**. The optional **Spotify**, **YouTube**, and **Shazam** fields create external listening buttons. Use **Grabaciones propias** to upload one or more MP3, M4A, OGG, WAV or WebM files. Uploaded recordings are stored in `public/media/recordings/` and are accessible to anyone using this **public** GitHub repository or the website.
+
+Upload only audio you own or have permission to distribute. Prefer compressed MP3/M4A and modest file sizes. GitHub's browser upload limit is 25 MiB per file, and a regular Git repository blocks files above 100 MiB. For a large audio library, migrate recording assets to a dedicated object store.
+
+Audio is **not automatically included in the initial offline PWA bundle** because large audio would slow down installing and updating Cantario. On a song page choose **Guardar sin conexión** on each recording to cache that file locally; use **Quitar descarga** to remove its cached copy. Offline copies are held in browser Cache Storage and may be evicted by the browser or removed when site data is cleared. Spotify, YouTube and Shazam links still need internet.
+
+## Create and manage multiple song lists
+
+There are two complementary list types:
+
+1. **Personal lists in the PWA:** create, rename and delete from the homepage, then use **+ Lista** on a song card or song page to place it into **multiple** personal lists. Lists and membership are stored in localStorage, work offline, and are specific to the current browser/device (no account sync or automatic backup).
+2. **Published lists in Pages CMS:** open **Listas publicadas → New** and enter a title and description, then use the **Canciones de la lista** reference picker to select many songs. A song can appear in as many published lists as you want. Saving triggers GitHub Pages deployment; visitors can browse the published lists, which become available offline with the updated site. Published lists are read-only in the PWA and editable through Pages CMS.
+
+The sample published list **Cantos del camino** contains two original demonstration songs. To publish personal list changes to all devices, recreate the list in Pages CMS; they do not sync automatically.
