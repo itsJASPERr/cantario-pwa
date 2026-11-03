@@ -3,11 +3,11 @@ title: Ojos del cielo
 artist: "Víctor Heredia "
 language: es
 ---
-yo miro el fondo de tus ojos tiernos
-se me borra el mundo con todo su infierno.
+[Em]yo miro el fondo de tus ojos [Am]tiernos
+se me borra el [D]mundo con todo su infi[Em]erno.
 Se me borra el mundo y descubro el cielo
 cuando me zambullo en tus ojos tiernos.
-OJOS DE CIELO, OJOS DE CIELO,
+[G]OJOS DE [D]CIELO, [Am]OJOS DE [Em]CIELO,
 NO ME ABANDONES EN PLENO VUELO.
 OJOS DE CIELO, OJOS DE CIELO,
 TODA MI VIDA POR ESE SUEÑO.
