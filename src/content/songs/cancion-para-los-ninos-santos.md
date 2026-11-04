@@ -52,3 +52,6 @@ ay vidita vida ai
 [Fm]medicina alumbr[Am]ai aiai
 [Fm]ninos santos que sonr[Am]ien aqui hoy[Fm] 
 ay vidita vidita[Am]i
+
+2x ai laiai
+ay vidita vida ai
