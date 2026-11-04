@@ -4,45 +4,51 @@ artist: Dario Poletti
 language: es
 ---
 3rd
-[Am] [Em]
+[Am]Intro [Em]
 
-2x La nai lanai...
+2x
 
-Lagrimas que limian corazon
-lamimitos del pasado
+[Am]La nai lanai...[Em]
 
-fuimos y inocentes una vez
-tuvimos que crecer aya yay
 
-1x La nai lanai...
+[Am]Lagrimas que limpian corazon
+lamimitos del pas[Em]ado
 
-ninos que me muestran como entrar
-en un bosque encantado
+[Am]fuimos inocentes una vez
+tuvimos que crec[Em]er aya yay
 
-tierra monte planta mariri
-el cielo estaba ahi con su luz
+[Am]La nai lanai...[Em]
 
-[Fm]ninos santos que me [Am]ensenan a ver
-medicina alumbrai aiai
-ninos santos que sonrien aqui hoy 
-ay vidita viditai
+[Am]ninos que me muestran como entrar
+en un bosque encant[Em]ado
 
-en las nubes se abre un gran portal
-el portal del gran misterio
-
-cuanta vida, cuanta inmensidad
-el tabaco siempre aqui, aiaiai
+[Am]tierra monte planta mariri
+y el cielo estaba ah[Em]i con su [Em]luz
 
 [Fm]ninos santos que me [Am]ensenan a ver
-medicina alumbrai aiai
-ninos santos que sonrien aqui
-hoy 
-ay vidita vida ai
+[Fm]medicina alumbr[Am]ai aiai
+[Fm]ninos santos que sonr[Am]ien aqui hoy[Fm] 
+ay vidita vidita[Am]i
+
+[Am]La nai lanai...[Em]
+
+[Am]en las nubes se abre un gran portal
+el portal del gran mist[Em]erio
+
+[Am]cuanta vida, cuanta inmensidad
+el tabaco siempre aq[Em]ui, aiaiai
+
+[Fm]ninos santos que me [Am]ensenan a ver
+[Fm]medicina alumbr[Am]ai aiai
+[Fm]ninos santos que sonr[Am]ien aqui hoy[Fm] 
+ay vidita vidita[Am]i
 
 2x ai laiai
 ay vidita vida ai
 
+[solo]
+
 [Fm]ninos santos que me [Am]ensenan a ver
-medicina alumbrai aiai
-ninos santos que sonrien aqui hoy 
-ay vidita viditai
+[Fm]medicina alumbr[Am]ai aiai
+[Fm]ninos santos que sonr[Am]ien aqui hoy[Fm] 
+ay vidita vidita[Am]i
